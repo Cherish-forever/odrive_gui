@@ -10,12 +10,12 @@
     <div class="spacer"></div>
     <router-view/>
     <div class="footer">
-      <div>Connected to:
+      <div class="left">Connected to:
         <div class="odrvSer">
-          ODRIVE_SERIAL
+          ODRIVE_SERIAL_NUM
         </div>
       </div>
-      <div>Error: 
+      <div class="right">Error: 
         <div class="errorState">
           None
         </div>
@@ -37,13 +37,16 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
 :root {
   --bg-color: rgb(235, 235, 235);
   --fg-color: #fff;
 }
 
 * {
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family: Arial, Helvetica, sans-serif; */
+  font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
@@ -86,22 +89,22 @@ export default {
   background-color: var(--fg-color);
 }
 
-.footer div{
-  flex-grow: 1;
+.footer .left,.right{
+  /* flex-grow: 1; */
   display: flex;
+  background-color: var(--fg-color);
+  font-family: 'Roboto Mono', monospace;
+  margin: auto 5px;
+}
+
+.odrvSer, .errorState {
+  font-weight: bold;
+  font-family: 'Roboto Mono', monospace;
+  margin: auto 5px;
   background-color: var(--fg-color);
 }
 
-.odrvSer {
-  font-weight: bold;
-  font-family: "Lucida Console", Monaco, monospace;
-  padding: 0px 10px;
-}
-
 .errorState{
-  font-weight: bold;
   color: #13a100;
-  font-family: "Lucida Console", Monaco, monospace;
-  padding: 0px 10px;
 }
 </style>
