@@ -7,7 +7,6 @@
       <router-link to="/control">Control</router-link>
       <router-link to="/troubleshooting">Troubleshooting</router-link>
     </div>
-    <div class="spacer"></div>
     <router-view/>
     <div class="footer">
       <div class="left">Connected to:
@@ -28,28 +27,20 @@
 export default {
   name: "App",
   mounted() {
-    // on mount, change the height of the spacer to force to RouterView content below the header
-    let height = document.querySelector(".header").clientHeight;
-    console.log(height);
-    document.querySelector(".spacer").style.height = `${height}px`;
   }
 }
 </script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
-
-:root {
-  --bg-color: rgb(235, 235, 235);
-  --fg-color: #fff;
-}
+@import './assets/styles/vars.css';
 
 * {
   /* font-family: Arial, Helvetica, sans-serif; */
   font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color);
+  box-sizing: border-box;
 }
 
 #app {
@@ -64,10 +55,11 @@ export default {
   width: 100vw;
   display: flex;
   background-color: var(--fg-color);
+  box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.4);
 }
 
 .header a {
-  font-size: 1.3rem;
+  font-size: 1rem;
   color: #2c3e50;
   text-decoration: none;
   padding: 10px;
@@ -87,6 +79,7 @@ export default {
   display: flex;
   padding: 5px;
   background-color: var(--fg-color);
+  box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.4);
 }
 
 .footer .left,.right{

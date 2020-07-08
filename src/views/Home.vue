@@ -4,7 +4,7 @@
       <img alt="Odrive Logo" src="../assets/odrive_logo.png">
     </div>
     <div class="home_text">
-      Homepage Text
+      To set up your ODrive, connect it and power it up.
     </div>
   </div>
 </template>
@@ -26,11 +26,8 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.logo {
-  margin: auto;
-  flex-grow: 1;
+  background-color: var(--bg-color);
+  height: 100vh;
 }
 
 img {
@@ -42,7 +39,6 @@ img {
 }
 
 .home_text {
-  flex-grow: 1;
   font-size: 1.5rem;
   padding: 20px;
 }

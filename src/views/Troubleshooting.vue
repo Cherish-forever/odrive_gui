@@ -11,5 +11,10 @@ export default {
 </script>
 
 <style>
+.troubleshooting {
+    background-color: var(--bg-color);
+    height: 100vh;
+    padding: 48px 0;
+}
 
 </style>
