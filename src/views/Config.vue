@@ -1,75 +1,93 @@
 <template>
   <div class="config">
     <div class="config_container">
-      <div class="config_tree">
+      <div class="config_tree card">
         <div>Parameter Tree</div>
-        <Tree class="item" v-bind:item="treeData"></Tree>
+        <json-view v-bind:data="odriveConfigs" v-bind:rootKey="'odrives'" v-on:selected="itemSelected"/>
       </div>
-      <div class="config_controls">Config controls go here</div>
+      <div class="controls">
+        <template v-for="(control, index) in controls">
+          <component :is="control.controlType" :key="index" :path="control.path" :name="control.name" :odrives="odrives"/>
+        </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import Tree from "../components/Tree.vue";
+import { JSONView } from "vue-json-component";
+import CtrlBoolean from "../components/controls/CtrlBoolean.vue";
+import CtrlNumeric from "../components/controls/CtrlNumeric.vue";
 
 export default {
   name: "Config",
   components: {
-    Tree
+    "json-view": JSONView,
+    CtrlBoolean,
+    CtrlNumeric
   },
+  props: ["odrives","odriveConfigs"],
   data() {
     return {
-      treeData: {
-        name: "odrv0",
-        children: [
-          { name: "SER_NUM" },
-          { name: "V3.6-48V" },
-          {
-            name: "config",
-            children: [
-              {
-                name: "axis0",
-                children: [
-                    { name: "controller" }
-                ]
-              },
-              { name: "brake_resistance" },
-              { name: "vbus_voltage" }
-            ]
-          }
-        ]
-      }
+      controls: [], //array of controls
     };
+  },
+  methods: {
+    createCtrl: function(control) {
+      // make a new control element and add it to the control panel
+      console.log(control);
+      console.log("adding control");
+    },
+    itemSelected: function(e) {
+      console.log(e);
+      switch(typeof e.value){
+        case 'boolean':
+          this.controls.push({
+            name: e.path,
+            controlType: "CtrlBoolean",
+            path: e.path,
+          });
+          break;
+        case 'number':
+          this.controls.push({
+            name: e.key,
+            controlType: "CtrlNumeric",
+            path: e.path,
+          });
+          break;
+        default:
+          break;
+      }
+    }
   }
 };
 </script>
 
-<style>
+<style scoped>
 .config {
   background-color: var(--bg-color);
   height: 100vh;
+  max-height: 100vh;
   width: 100vw;
-  padding: 48px 0;
+  padding: var(--top-height) 0;
 }
 
 .config_container {
   display: flex;
   flex-direction: row;
-  padding: 10px;
 }
 
 .config_tree {
   background-color: var(--fg-color);
-  flex-grow: 1;
+
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
+  overflow-y: scroll;
+  max-height: 90vh;
+  
 }
 
-.config_controls {
-  flex-grow: 8;
-  padding: 10px;
+.properties {
+  visibility: hidden;
 }
 </style>

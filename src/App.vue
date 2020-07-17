@@ -1,39 +1,79 @@
 <template>
   <div id="app">
     <div class="header">
-      <router-link to="/">Home</router-link>
-      <router-link to="/quickstart">Quickstart</router-link>
-      <router-link to="/config">Config</router-link>
-      <router-link to="/control">Control</router-link>
-      <router-link to="/troubleshooting">Troubleshooting</router-link>
+      <button
+      v-for="dash in dashboards"
+      v-bind:key="dash"
+      v-bind:class="['dash-button', { active: currentDash === dash}]"
+      v-on:click="currentDash = dash">
+        {{ dash }}
+      </button>
+      <button class="dash-button">+</button>
     </div>
-    <router-view/>
+    <component v-bind:is="currentDashComponent" v-bind:odrives="odrives" v-bind:odriveConfigs="odriveConfigs"></component>
     <div class="footer">
-      <div class="left">Connected to:
-        <div class="odrvSer">
-          ODRIVE_SERIAL_NUM
-        </div>
-      </div>
-      <div class="right">Error: 
-        <div class="errorState">
-          None
-        </div>
-      </div>
+      <Axis
+      v-for="axis in axes"
+      v-bind:key="axis.name"
+      v-bind:axis="axis"
+      >
+      </Axis>
     </div>
   </div>
 </template>
 
 <script>
+import Start from "./views/Start.vue";
+import Config from "./views/Config.vue";
+import Axis from "./components/Axis.vue";
+
 export default {
   name: "App",
-  mounted() {
-  }
+  components: {
+    Start,
+    Config,
+    Axis
+  },
+  data: function() {
+    return {
+      currentDash: "Start",
+      dashboards: ["Start", "Config"]
+    }
+  },
+  computed: {
+    currentDashComponent: function() {
+      return this.currentDash;
+    },
+    axes: function() {
+      return this.$store.state.axes;
+    },
+    odrives: function() {
+      return this.$store.state.odrives;
+    },
+    odriveConfigs: function() {
+      return this.$store.state.odriveConfigs;
+    }
+  },
+  methods: {
+    updateOdrives() {
+      this.$store.dispatch('getOdrives');
+      setTimeout(() => {this.updateOdrives()}, 1000);
+      console.log("updating data...");
+    }
+  },
+  created() {
+    //grab full JSON
+    //this.getOdrives();
+    this.$store.commit('changeServerAddress', 'http://192.168.1.126:8080');
+    this.updateOdrives();
+  },
 }
 </script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Roboto:wght@400;700&display=swap');
 @import './assets/styles/vars.css';
+@import './assets/styles/style.css';
 
 * {
   /* font-family: Arial, Helvetica, sans-serif; */
@@ -58,15 +98,17 @@ export default {
   box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.4);
 }
 
-.header a {
+button {
   font-size: 1rem;
   color: #2c3e50;
   text-decoration: none;
   padding: 10px;
   background-color: var(--fg-color);
+  border-style: none;
+  outline: none;
 }
 
-.header a.router-link-exact-active {
+.active {
   color: #000000;
   background-color: var(--bg-color);
 }
@@ -77,7 +119,6 @@ export default {
   left: 0px;
   bottom: 0px;
   display: flex;
-  padding: 5px;
   background-color: var(--fg-color);
   box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.4);
 }
