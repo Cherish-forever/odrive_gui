@@ -65,7 +65,7 @@ export default new Vuex.Store({
                         }
                     }
                     else if (odriveObj[key] == "function") {
-                        // do nothing
+                        retObj[key] = "function";
                     }
                     else {
                         retObj[key] = odriveObj[key];
