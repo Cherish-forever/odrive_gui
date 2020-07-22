@@ -10,7 +10,15 @@ export default new Vuex.Store({
         odrives: Object,
         odriveConfigs: Object,
         axes: Array,
-        odriveServerAddress: String
+        odriveServerAddress: String,
+        dashboards: [
+            {
+                name: "Start",
+                component: "Start"
+            },
+            { name: "Config", component: "Dashboard", controls: [], plots: [] }
+        ],
+        sampledProperties: []
     },
     // mutations are functions that change the data
     mutations: {
@@ -25,6 +33,28 @@ export default new Vuex.Store({
         },
         changeServerAddress(state, address) {
             state.odriveServerAddress = address;
+        },
+        updateOdriveProp(state, payload) {
+            // need to use Vue.set!!!
+            // payload is {path, value}
+            const createNestedObject = (odrive, path) => {
+                let ref = odrive;
+                let keys = path.split('.');
+                for (const key of keys) {
+                    ref = ref[key];
+                }
+                return ref;
+            };
+            Vue.set(createNestedObject(state.odrives, payload.path), "val" , payload.value);
+            
+        },
+        addSampledProperty(state, path) {
+            if( !(path in state.sampledProperties) ){
+                state.sampledProperties.push(path);
+            }
+            for (const path of state.sampledProperties) {
+                console.log(path);
+            }
         }
     },
     // actions trigger mutations
@@ -84,15 +114,32 @@ export default new Vuex.Store({
                         name: `${odrive}.axis0`,
                         ref: context.state.odrives[odrive]['axis0']
                     });
+                    context.commit('addSampledProperty', `${odrive}.axis0.error.val`);
                 }
                 if ('axis1' in context.state.odrives[odrive]) {
                     axes.push({
                         name: `${odrive}.axis1`,
                         ref: context.state.odrives[odrive]['axis1']
                     });
+                    context.commit('addSampledProperty', `${odrive}.axis1.error.val`);
                 }
             }
             context.commit('setAxes', axes);
+        },
+        updateSampledProperties(context) {
+            for (const propPath of context.state.sampledProperties) {
+                //do an axios.get with mutation in .then()
+                var params = new URLSearchParams();
+                let keys = propPath.split(".");
+                keys.shift();
+                for (const key of keys) {
+                    params.append("key", key);
+                }
+                axios.get(context.state.odriveServerAddress + "/api/property", {params: params}).then((response) => {
+                    context.commit('updateOdriveProp', {path: keys.join('.'), value: JSON.parse(JSON.stringify(response.data))});
+                });
+                context.dispatch('getAxes');
+            }
         }
     }
 })

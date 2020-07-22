@@ -35,7 +35,7 @@ export default {
         params: params
       };
       console.log(request);
-      axios.put("http://192.168.1.126:8080/api/property", null, request);
+      axios.put(this.$store.state.odriveServerAddress + "/api/property", null, request);
     },
     executeFunction: function(e) {
         //execute this function on the odrive

@@ -20,7 +20,7 @@ export default {
     value: function() {
       let keys = this.path.split(".");
       keys.shift(); // don't need first key here
-      let odriveObj = this.odrives;
+      let odriveObj = this.$store.state.odrives;
       for (const key of keys) {
         odriveObj = odriveObj[key];
       }

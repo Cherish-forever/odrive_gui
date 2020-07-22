@@ -12,7 +12,9 @@
           />
         </template>
       </div>
-      <div class="plots"></div>
+      <div class="plots card">
+        <!-- <random-chart /> -->
+      </div>
     </div>
   </div>
 </template>
@@ -26,12 +28,16 @@ import CtrlBoolean from "../components/controls/CtrlBoolean.vue";
 import CtrlNumeric from "../components/controls/CtrlNumeric.vue";
 import CtrlFunction from "../components/controls/CtrlFunction.vue";
 
+//temp for testing plots
+import TestChart from "../components/TestChart.vue";
+
 export default {
   name: "Dashboard",
   components: {
     CtrlBoolean,
     CtrlNumeric,
-    CtrlFunction
+    CtrlFunction,
+    TestChart
   },
   props: ["ctrlList", "plotList","odrives"],
   data() {

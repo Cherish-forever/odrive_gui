@@ -50,6 +50,9 @@ import Dashboard from "./views/Dashboard.vue";
 import Axis from "./components/Axis.vue";
 import { JSONView } from "vue-json-component";
 
+let propSamplePeriod = 100; //sampling period for properties in ms
+
+
 export default {
   name: "App",
   components: {
@@ -61,13 +64,6 @@ export default {
   data: function() {
     return {
       currentDash: "Start",
-      dashboards: [
-        {
-          name: "Start",
-          component: "Start"
-        },
-        { name: "Config", component: "Dashboard", controls: [], plots: [] }
-      ],
       paramsVisible: false
     };
   },
@@ -84,8 +80,8 @@ export default {
     },
     currentCtrlList: function() {
       let comp = {};
-      for(const dash of this.dashboards) {
-        if(dash.name === this.currentDash){
+      for (const dash of this.dashboards) {
+        if (dash.name === this.currentDash) {
           comp = dash.controls;
         }
       }
@@ -99,15 +95,26 @@ export default {
     },
     odriveConfigs: function() {
       return this.$store.state.odriveConfigs;
+    },
+    dashboards: function() {
+      return this.$store.state.dashboards;
     }
   },
   methods: {
     updateOdrives() {
       this.$store.dispatch("getOdrives");
-      setTimeout(() => {
+      /*setTimeout(() => {
         this.updateOdrives();
       }, 1000);
-      console.log("updating data...");
+      */
+      //console.log("updating data...");
+    },
+    updateProps() {
+      this.$store.dispatch("updateSampledProperties");
+      setTimeout(() => {
+        this.updateProps();
+      }, propSamplePeriod);
+      //console.log("updating props...");
     },
     addDash() {
       let dashname = "Dashboard " + (this.dashboards.length - 2);
@@ -136,12 +143,14 @@ export default {
                 controlType: "CtrlBoolean",
                 path: e.path
               });
+              this.$store.commit("addSampledProperty", e.path);
               break;
             case "number":
               dash.controls.push({
                 controlType: "CtrlNumeric",
                 path: e.path
               });
+              this.$store.commit("addSampledProperty", e.path);
               break;
             case "string":
               dash.controls.push({
@@ -166,6 +175,7 @@ export default {
     //this.getOdrives();
     this.$store.commit("changeServerAddress", "http://192.168.1.126:8080");
     this.updateOdrives();
+    this.updateProps();
   }
 };
 </script>
