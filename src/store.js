@@ -12,6 +12,7 @@ export default new Vuex.Store({
         odriveConfigs: Object,
         axes: Array,
         odriveServerAddress: String,
+        serverConnected: Boolean,
         dashboards: [
             {
                 name: "Start",
@@ -21,7 +22,7 @@ export default new Vuex.Store({
         ],
         timeSampleStart: 0,
         sampledProperties: [], // make this an object where the full path is a key and the value is the sampled var
-        propSamples: {time: []} // {time: [time values], ...path: [path var values]}
+        propSamples: { time: [] } // {time: [time values], ...path: [path var values]}
     },
     // mutations are functions that change the data
     mutations: {
@@ -55,7 +56,7 @@ export default new Vuex.Store({
         addSampledProperty(state, path) {
             if (!(path in state.sampledProperties)) {
                 let newPath = path.split('.');
-                newPath.splice(0,1);
+                newPath.splice(0, 1);
                 state.sampledProperties.push(newPath.join('.'));
                 state.propSamples[newPath.join('.')] = [];
                 console.log(state.propSamples);
@@ -72,25 +73,28 @@ export default new Vuex.Store({
         },
         removeSampledProperty(state, path) {
             let newPath = path.split('.');
-            newPath.splice(0,1);
+            newPath.splice(0, 1);
             const index = state.sampledProperties.indexOf(newPath.join('.'));
-            if(index > -1){
-                state.sampledProperties.splice(index,1);
+            if (index > -1) {
+                state.sampledProperties.splice(index, 1);
             }
         },
         updateSampledProperty(state, payload) {
             // payload is object of paths and values
-            for(const path of Object.keys(payload)){
+            for (const path of Object.keys(payload)) {
                 state.propSamples[path].push(payload[path]);
-                if(state.propSamples[path].length > 100){
-                    state.propSamples[path].splice(0,1); // emulate circular buffer
+                if (state.propSamples[path].length > 100) {
+                    state.propSamples[path].splice(0, 1); // emulate circular buffer
                 }
             }
-            state.propSamples["time"].push((Date.now()-state.timeSampleStart) / 1000);
-            if(state.propSamples["time"].length > 100){
-                state.propSamples["time"].splice(0,1);
+            state.propSamples["time"].push((Date.now() - state.timeSampleStart) / 1000);
+            if (state.propSamples["time"].length > 100) {
+                state.propSamples["time"].splice(0, 1);
             }
-        }
+        },
+        setServerStatus(state, val) {
+            state.serverConnected = val;
+        },
     },
     // actions trigger mutations
     actions: {
@@ -159,5 +163,36 @@ export default new Vuex.Store({
             }
             context.commit('setAxes', axes);
         },
+        setServerAddress(context, address) {
+            context.commit('setServerAddress', address);
+            socketio.setUrl(address);
+            socketio.addEventListener({
+                type: "connect",
+                callback: () => {
+                    context.commit("setServerStatus", true);
+                    console.log('connected to server');
+                }
+            });
+            socketio.addEventListener({
+                type: "disconnect",
+                callback: () => {
+                    context.commit("setServerStatus", false);
+                }
+            });
+            socketio.addEventListener({
+                type: "sampledData",
+                callback: message => {
+                    context.commit("updateSampledProperty", JSON.parse(message));
+                }
+            });
+            socketio.addEventListener({
+                type: "samplingEnabled",
+                callback: () => {
+                    socketio.sendEvent({
+                        type: "startSampling"
+                    });
+                }
+            });
+        }
     }
 })

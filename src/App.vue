@@ -187,18 +187,17 @@ export default {
             break;
           }
         }
-      }
-      else if(this.addToCtrl == false && this.addToPlot == true){
+      } else if (this.addToCtrl == false && this.addToPlot == true) {
         // add the selected element to the plot var list
         // add the selected element to the sampling var list
         //find the plot, append path to plot.vars
         console.log(e);
-        for(const dash of this.dashboards){
-          if(this.currentDash === dash.name && this.currentDash !== "Start"){
-            for(const plot of dash.plots){
-              if(plot.name == this.currentPlot){
+        for (const dash of this.dashboards) {
+          if (this.currentDash === dash.name && this.currentDash !== "Start") {
+            for (const plot of dash.plots) {
+              if (plot.name == this.currentPlot) {
                 plot.vars.push(e.path);
-                this.$store.commit('addSampledProperty',e.path);
+                this.$store.commit("addSampledProperty", e.path);
                 console.log(plot);
               }
             }
@@ -270,23 +269,8 @@ export default {
     //grab full JSON
     //this.getOdrives();
 
-    this.$store.commit("setServerAddress", "http://192.168.1.126:8080");
+    this.$store.dispatch("setServerAddress", "http://localhost:8080");
     // connect to socketio on server for sampled data
-    socketio.setUrl(this.$store.state.odriveServerAddress);
-    socketio.addEventListener({
-      type: "sampledData",
-      callback: message => {
-        this.$store.commit("updateSampledProperty", JSON.parse(message));
-      }
-    });
-    socketio.addEventListener({
-      type: "samplingEnabled",
-      callback: () => {
-        socketio.sendEvent({
-          type: "startSampling"
-        });
-      }
-    });
     this.updateOdrives();
   }
 };

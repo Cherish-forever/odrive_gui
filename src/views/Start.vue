@@ -6,6 +6,9 @@
     <div class="home_text">
       To set up your ODrive, connect it and power it up.
     </div>
+    <div class="connected-container">
+      <input type="text" v-bind:class="{ notConnected: notConnected, connected: connected}" v-on:change="setUrl" value="http://localhost:8080">
+    </div>
   </div>
 </template>
 
@@ -14,6 +17,20 @@
 export default {
   name: 'Home',
   components: {
+  },
+  computed: {
+    connected() {
+      return this.$store.state.serverConnected == true;
+    },
+    notConnected() {
+      return this.$store.state.serverConnected != true;
+    }
+  },
+  methods: {
+    setUrl(e) {
+      console.log(e.target.value);
+      this.$store.dispatch("setServerAddress", e.target.value);
+    }
   }
 }
 </script>
@@ -41,5 +58,29 @@ img {
 .home_text {
   font-size: 1.5rem;
   padding: 20px;
+}
+
+.connected, .notConnected {
+  width: 40vw;
+  margin: 0;
+  padding: 10px;
+  border: none;
+  border-bottom: 1px solid lightgrey;
+  font-size: 1.5rem;
+  background-color: var(--bg-color);
+  text-align: center;
+}
+
+input:focus {
+  outline: none;
+}
+
+.connected {
+  border-bottom: 1px solid lightgreen;
+  background-color: lightgreen;
+}
+
+.notConnected {
+  border-bottom: 1px solid red;
 }
 </style>
