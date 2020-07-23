@@ -2,18 +2,23 @@
   <div class="dashboard">
     <div class="dashboard_container">
       <div class="controls">
-        <template v-for="(control, index) in ctrlList">
+        <template v-for="(control, index) in dash.controls">
           <component
             :is="control.controlType"
             :key="index"
             :path="control.path"
             :name="control.name"
             :odrives="odrives"
+            v-on:delete-ctrl="deleteCtrl"
           />
         </template>
+        <div class="add-button card" @click="$emit('add-control')">Add Controls</div>
       </div>
-      <div class="plots card">
-        <!-- <random-chart /> -->
+      <div class="plots">
+        <template v-for="(plot, index) in dash.plots">
+          <test-chart :plot="plot" :key="index" :name="plot.name" v-on:delete-plot="deletePlot" v-on:add-var="addVar"/>
+        </template>
+        <div class="add-button card" @click="$emit('add-plot')">Add Plot</div>
       </div>
     </div>
   </div>
@@ -39,11 +44,21 @@ export default {
     CtrlFunction,
     TestChart
   },
-  props: ["ctrlList", "plotList","odrives"],
+  props: ["dash", "odrives"],
   data() {
     return {};
   },
-  methods: {}
+  methods: {
+    deleteCtrl(e) {
+      this.$emit("delete-ctrl", e);
+    },
+    deletePlot(e) {
+      this.$emit("delete-plot", e);
+    },
+    addVar(e) {
+      this.$emit("add-var", e);
+    }
+  }
 };
 </script>
 
@@ -53,11 +68,39 @@ export default {
   height: 100vh;
   max-height: 100vh;
   width: 100vw;
-  padding: var(--top-height) 0;
+  padding-top: var(--top-height);
+  padding-bottom: var(--bottom-height);
 }
 
 .dashboard_container {
   display: flex;
   flex-direction: row;
+  height: 95vh;
+}
+.controls {
+  flex-grow: 1;
+  border-right: 1px solid lightgrey;
+}
+
+.add-button {
+  background-color: lightcyan;
+  width: 120px;
+  margin: 10px auto;
+  text-align: center;
+  border-radius: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.add-button:active {
+  background-color: lightblue;
+}
+
+.plots {
+  flex-grow: 1;
+  max-height: 94vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
 }
 </style>

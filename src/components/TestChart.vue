@@ -1,5 +1,9 @@
 <template>
-  <div class="small">
+  <div class="card plot">
+    <div class="plot-header">
+      <button class="delete" @click="$emit('delete-plot', name)">X</button>
+      <button class="add-var" @click="$emit('add-var', name)">+</button>
+    </div>
     <line-chart v-if="loaded" :chart-data="datacollection" :options="dataOptions"></line-chart>
   </div>
 </template>
@@ -11,6 +15,7 @@ export default {
   components: {
     LineChart
   },
+  props: ["name", "plot"],
   data() {
     return {
       datacollection: null,
@@ -25,16 +30,18 @@ export default {
         },
         responsiveAnimationDuration: 0, // animation duration after a resize
         elements: {
-            point: {
-                radius: 0
-            },
-            line: {
-                borderColor: "#000",
-                fill: false,
-                borderWidth: 1,
-                tension: 0
-            }
-        }
+          point: {
+            radius: 0
+          },
+          line: {
+            borderColor: "#000",
+            fill: false,
+            borderWidth: 1,
+            tension: 0
+          }
+        },
+        responsive: true,
+        maintainAspectRatio: false
       }
     };
   },
@@ -45,23 +52,19 @@ export default {
   },
   methods: {
     fillData() {
-      let labels = this.datacollection.labels;
-      let datasets = this.datacollection.datasets;
       let newData = {
-        labels: labels,
-        datasets: datasets
+        labels: this.$store.state.propSamples["time"],
+        datasets: []
       };
-      let time = (Date.now() - this.timeStart) / 1000;
-      newData.labels.push(time);
-      newData.datasets[0].data.push(Math.sin(time));
-      newData.datasets[0].label = "Sine wave";
-
-      //limit array size to 50 elements for testing
-      if (newData.labels.length >= 200) {
-        newData.labels.splice(0, 1);
-      }
-      if (newData.datasets[0].data.length >= 200) {
-        newData.datasets[0].data.splice(0, 1);
+      for (const path of this.plot.vars) {
+        let newPath = path.split('.');
+        newPath.splice(0,1);
+        newPath = newPath.join('.');
+        newData.datasets.push({
+          label: newPath,
+          backgroundColor: "rgba(0,0,0,0)",
+          data: this.$store.state.propSamples[newPath]
+        });
       }
       this.datacollection = newData;
       this.loaded = true;
@@ -72,7 +75,7 @@ export default {
         datasets: [
           {
             label: "Sine wave",
-            backgroundColor: "rgba(0,0,0,0)",//"#f87979",
+            backgroundColor: "rgba(0,0,0,0)", //"#f87979",
             data: [0]
           }
         ]
@@ -83,14 +86,42 @@ export default {
         this.liveData();
       }, 100);
       this.fillData();
-    },
+    }
   }
 };
 </script>
 
-<style>
-.small {
-  max-width: 600px;
-  margin: 0;
+<style scoped>
+div {
+  position: relative;
+}
+
+.plot {
+  z-index: 0;
+}
+
+.plot-header {
+  display: flex;
+}
+
+.plotname {
+  flex-grow: 10;
+  margin: auto 0;
+}
+
+.delete {
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 5px;
+  margin-right: 10px;
+  border: 1px solid black;
+}
+
+.add-var {
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 5px;
+  margin-right: 10px;
+  border: 1px solid black;
 }
 </style>

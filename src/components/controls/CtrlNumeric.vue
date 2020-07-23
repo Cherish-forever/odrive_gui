@@ -1,6 +1,7 @@
 <template>
   <div class="card">
-    <span class="ctrlName">{{name}}:</span>
+    <button class="delete" @click="$emit('delete-ctrl', path)">X</button>
+    <span class="ctrlName">{{name}}: </span>
     <span class="ctrlVal">{{value}}</span>
     <input v-if="writeAccess" type="number" v-on:change="putVal" />
   </div>
@@ -14,7 +15,7 @@ export default {
   //type checking here for properties
   props: {
     path: String,
-    odrives: Object
+    odrives: Object,
   },
   computed: {
     value: function() {
@@ -69,5 +70,12 @@ export default {
 <style scoped>
 .ctrlVal {
   font-weight: bold;
+}
+.delete {
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 5px;
+  margin-right: 10px;
+  border: 1px solid black;
 }
 </style>

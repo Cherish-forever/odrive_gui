@@ -2,9 +2,11 @@
   <div id="app">
     <!-- HEADER -->
     <div class="header">
+      <button class="dash-button" @click="startsample">start sampling</button>
+      <button class="dash-button" @click="stopsample">stop sampling</button>
       <button
         class="dash-button parameter-button"
-        @click="showTree"
+        @click="hideTree"
         v-bind:class="[{active: paramsVisible === true}]"
       >Parameters</button>
       <button
@@ -24,17 +26,22 @@
         <json-view
           v-bind:data="odriveConfigs"
           v-bind:rootKey="'odrives'"
-          v-on:selected="addCtrlToDash"
+          v-on:selected="addVarToElement"
         />
       </div>
     </div>
 
     <!-- PAGE CONTENT -->
     <component
-      v-bind:is="currentDashComponent"
+      v-bind:is="currentDashName"
       v-bind:odrives="odrives"
-      v-bind:odriveConfigs="odriveConfigs"
-      v-bind:ctrlList="currentCtrlList"
+      v-bind:dash="dash"
+      v-on:add-control="addControlToDash"
+      v-on:delete-ctrl="removeCtrlFromDash"
+      v-on:add-plot="addPlotToDash"
+      v-on:delete-plot="removePlotFromDash"
+      v-on:add-var="addVarToPlot"
+      v-on:delete-var="removeVarFromPlot"
     ></component>
 
     <!-- FOOTER -->
@@ -49,9 +56,10 @@ import Start from "./views/Start.vue";
 import Dashboard from "./views/Dashboard.vue";
 import Axis from "./components/Axis.vue";
 import { JSONView } from "vue-json-component";
+import { v4 as uuidv4 } from "uuid";
+import * as socketio from "./comms/socketio";
 
-let propSamplePeriod = 100; //sampling period for properties in ms
-
+//let propSamplePeriod = 100; //sampling period for properties in ms
 
 export default {
   name: "App",
@@ -64,16 +72,28 @@ export default {
   data: function() {
     return {
       currentDash: "Start",
-      paramsVisible: false
+      paramsVisible: false,
+      addToCtrl: false,
+      addToPlot: false,
+      currentPlot: undefined
     };
   },
   computed: {
-    currentDashComponent: function() {
+    currentDashName: function() {
       //get the appropriate component name from the currentDash variable
       let comp = {};
       for (const dash of this.dashboards) {
         if (dash.name === this.currentDash) {
           comp = dash.component;
+        }
+      }
+      return comp;
+    },
+    dash: function() {
+      let comp = {};
+      for (const dash of this.dashboards) {
+        if (dash.name === this.currentDash) {
+          comp = dash;
         }
       }
       return comp;
@@ -103,18 +123,11 @@ export default {
   methods: {
     updateOdrives() {
       this.$store.dispatch("getOdrives");
-      /*setTimeout(() => {
+      setTimeout(() => {
         this.updateOdrives();
       }, 1000);
-      */
+
       //console.log("updating data...");
-    },
-    updateProps() {
-      this.$store.dispatch("updateSampledProperties");
-      setTimeout(() => {
-        this.updateProps();
-      }, propSamplePeriod);
-      //console.log("updating props...");
     },
     addDash() {
       let dashname = "Dashboard " + (this.dashboards.length - 2);
@@ -128,42 +141,125 @@ export default {
     showTree() {
       //show the parameter tree
       //change the style to not be display none
-      this.paramsVisible = this.paramsVisible == true ? false : true;
+      this.paramsVisible = true;
     },
-    addCtrlToDash(e) {
+    hideTree() {
+      this.paramsVisible = false;
+      this.addToCtrl = false;
+      this.addToPlot = false;
+    },
+    addControlToDash() {
+      this.addToCtrl = true;
+      //show parameter menu
+      this.showTree();
+    },
+    addVarToElement(e) {
       //when the parameter tree is open and a parameter is clicked,
       //add the clicked parameter to the list of controls for the
       //current dashboard
-      console.log(e);
-      for (const dash of this.dashboards) {
-        if (this.currentDash === dash.name && this.currentDash !== "Start") {
-          switch (typeof e.value) {
-            case "boolean":
-              dash.controls.push({
-                controlType: "CtrlBoolean",
-                path: e.path
-              });
-              this.$store.commit("addSampledProperty", e.path);
-              break;
-            case "number":
-              dash.controls.push({
-                controlType: "CtrlNumeric",
-                path: e.path
-              });
-              this.$store.commit("addSampledProperty", e.path);
-              break;
-            case "string":
-              dash.controls.push({
-                controlType: "CtrlFunction",
-                path: e.path
-              });
-              break;
-            default:
-              break;
+      if (this.addToCtrl == true && this.addToPlot == false) {
+        for (const dash of this.dashboards) {
+          if (this.currentDash === dash.name && this.currentDash !== "Start") {
+            switch (typeof e.value) {
+              case "boolean":
+                dash.controls.push({
+                  controlType: "CtrlBoolean",
+                  path: e.path
+                });
+                //this.$store.commit("addSampledProperty", e.path);
+                break;
+              case "number":
+                dash.controls.push({
+                  controlType: "CtrlNumeric",
+                  path: e.path
+                });
+                //this.$store.commit("addSampledProperty", e.path);
+                break;
+              case "string":
+                dash.controls.push({
+                  controlType: "CtrlFunction",
+                  path: e.path
+                });
+                break;
+              default:
+                break;
+            }
+            break;
           }
-          break;
         }
       }
+      else if(this.addToCtrl == false && this.addToPlot == true){
+        // add the selected element to the plot var list
+        // add the selected element to the sampling var list
+        //find the plot, append path to plot.vars
+        console.log(e);
+        for(const dash of this.dashboards){
+          if(this.currentDash === dash.name && this.currentDash !== "Start"){
+            for(const plot of dash.plots){
+              if(plot.name == this.currentPlot){
+                plot.vars.push(e.path);
+                this.$store.commit('addSampledProperty',e.path);
+                console.log(plot);
+              }
+            }
+          }
+        }
+      }
+    },
+    removeCtrlFromDash(path) {
+      // have full path from component
+      for (const dash of this.dashboards) {
+        if (this.currentDash === dash.name && this.currentDash !== "Start") {
+          for (const control of dash.controls) {
+            if (control.path == path) {
+              dash.controls.splice(dash.controls.indexOf(control), 1);
+            }
+          }
+        }
+      }
+    },
+    addPlotToDash() {
+      for (const dash of this.dashboards) {
+        if (this.currentDash === dash.name && this.currentDash !== "Start") {
+          let plotId = uuidv4();
+          dash.plots.push({
+            name: plotId,
+            vars: []
+          });
+        }
+      }
+    },
+    removePlotFromDash(name) {
+      for (const dash of this.dashboards) {
+        if (this.currentDash === dash.name && this.currentDash !== "Start") {
+          for (const plot of dash.plots) {
+            if (plot.name == name) {
+              dash.plots.splice(dash.plots.indexOf(plot), 1);
+            }
+          }
+        }
+      }
+    },
+    addVarToPlot(plotname) {
+      console.log(plotname);
+      this.addToPlot = true;
+      this.showTree();
+      this.currentPlot = plotname;
+    },
+    removeVarFromPlot(e) {
+      //e should be plotname and var name (or path)
+      console.log(e);
+    },
+    startsample() {
+      socketio.sendEvent({
+        type: "enableSampling"
+      });
+      this.$store.state.timeSampleStart = Date.now();
+    },
+    stopsample() {
+      socketio.sendEvent({
+        type: "stopSampling"
+      });
     },
     estop() {
       // send stop command to odrives
@@ -173,9 +269,25 @@ export default {
   created() {
     //grab full JSON
     //this.getOdrives();
-    this.$store.commit("changeServerAddress", "http://192.168.1.126:8080");
+
+    this.$store.commit("setServerAddress", "http://192.168.1.126:8080");
+    // connect to socketio on server for sampled data
+    socketio.setUrl(this.$store.state.odriveServerAddress);
+    socketio.addEventListener({
+      type: "sampledData",
+      callback: message => {
+        this.$store.commit("updateSampledProperty", JSON.parse(message));
+      }
+    });
+    socketio.addEventListener({
+      type: "samplingEnabled",
+      callback: () => {
+        socketio.sendEvent({
+          type: "startSampling"
+        });
+      }
+    });
     this.updateOdrives();
-    this.updateProps();
   }
 };
 </script>
@@ -206,6 +318,7 @@ export default {
   display: flex;
   background-color: var(--fg-color);
   box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.4);
+  z-index: 1;
 }
 
 button {
@@ -231,6 +344,7 @@ button {
   display: flex;
   background-color: var(--fg-color);
   box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.4);
+  z-index: 1;
 }
 
 .footer .left,

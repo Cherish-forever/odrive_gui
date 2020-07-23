@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 const axios = require('axios');
+import * as socketio from "./comms/socketio";
 
 Vue.use(Vuex);
 
@@ -18,7 +19,9 @@ export default new Vuex.Store({
             },
             { name: "Config", component: "Dashboard", controls: [], plots: [] }
         ],
-        sampledProperties: []
+        timeSampleStart: 0,
+        sampledProperties: [], // make this an object where the full path is a key and the value is the sampled var
+        propSamples: {time: []} // {time: [time values], ...path: [path var values]}
     },
     // mutations are functions that change the data
     mutations: {
@@ -31,12 +34,13 @@ export default new Vuex.Store({
         setAxes(state, axes) {
             state.axes = axes;
         },
-        changeServerAddress(state, address) {
+        setServerAddress(state, address) {
             state.odriveServerAddress = address;
         },
         updateOdriveProp(state, payload) {
             // need to use Vue.set!!!
             // payload is {path, value}
+            // 
             const createNestedObject = (odrive, path) => {
                 let ref = odrive;
                 let keys = path.split('.');
@@ -45,15 +49,46 @@ export default new Vuex.Store({
                 }
                 return ref;
             };
-            Vue.set(createNestedObject(state.odrives, payload.path), "val" , payload.value);
-            
+            Vue.set(createNestedObject(state.odrives, payload.path), "val", payload.value);
+
         },
         addSampledProperty(state, path) {
-            if( !(path in state.sampledProperties) ){
-                state.sampledProperties.push(path);
+            if (!(path in state.sampledProperties)) {
+                let newPath = path.split('.');
+                newPath.splice(0,1);
+                state.sampledProperties.push(newPath.join('.'));
+                state.propSamples[newPath.join('.')] = [];
+                console.log(state.propSamples);
             }
             for (const path of state.sampledProperties) {
                 console.log(path);
+            }
+            socketio.sendEvent({
+                type: 'sampledVarNames',
+                data: {
+                    paths: state.sampledProperties
+                }
+            });
+        },
+        removeSampledProperty(state, path) {
+            let newPath = path.split('.');
+            newPath.splice(0,1);
+            const index = state.sampledProperties.indexOf(newPath.join('.'));
+            if(index > -1){
+                state.sampledProperties.splice(index,1);
+            }
+        },
+        updateSampledProperty(state, payload) {
+            // payload is object of paths and values
+            for(const path of Object.keys(payload)){
+                state.propSamples[path].push(payload[path]);
+                if(state.propSamples[path].length > 100){
+                    state.propSamples[path].splice(0,1); // emulate circular buffer
+                }
+            }
+            state.propSamples["time"].push((Date.now()-state.timeSampleStart) / 1000);
+            if(state.propSamples["time"].length > 100){
+                state.propSamples["time"].splice(0,1);
             }
         }
     },
@@ -114,32 +149,15 @@ export default new Vuex.Store({
                         name: `${odrive}.axis0`,
                         ref: context.state.odrives[odrive]['axis0']
                     });
-                    context.commit('addSampledProperty', `${odrive}.axis0.error.val`);
                 }
                 if ('axis1' in context.state.odrives[odrive]) {
                     axes.push({
                         name: `${odrive}.axis1`,
                         ref: context.state.odrives[odrive]['axis1']
                     });
-                    context.commit('addSampledProperty', `${odrive}.axis1.error.val`);
                 }
             }
             context.commit('setAxes', axes);
         },
-        updateSampledProperties(context) {
-            for (const propPath of context.state.sampledProperties) {
-                //do an axios.get with mutation in .then()
-                var params = new URLSearchParams();
-                let keys = propPath.split(".");
-                keys.shift();
-                for (const key of keys) {
-                    params.append("key", key);
-                }
-                axios.get(context.state.odriveServerAddress + "/api/property", {params: params}).then((response) => {
-                    context.commit('updateOdriveProp', {path: keys.join('.'), value: JSON.parse(JSON.stringify(response.data))});
-                });
-                context.dispatch('getAxes');
-            }
-        }
     }
 })

@@ -3,20 +3,31 @@ from odrive.enums import *
 import http.server
 import socketserver
 import flask
-from flask import make_response, request, jsonify
+from flask import make_response, request, jsonify, session
+from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 import fibre
 import json
 import re
+import time
 
 # interface for odrive GUI to get data from odrivetool
 
+#better handling of websockets
+# eventlet.monkey_patch()
+
 app = flask.Flask(__name__)
+app.config['SECRET_KEY'] = 'secret'
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='None'
+)
 CORS(app, support_credentials=True)
+socketio = SocketIO(app, cors_allowed_origins="*")
 odrives = []
 odriveDict = {}
 configDict = {}
-
 
 def get_all_odrives():
     #odrives = odrive.find_any(timeout=5, find_multiple=100)
@@ -24,6 +35,33 @@ def get_all_odrives():
     odrives.append(odrive.find_any())
     return odrives
 
+@socketio.on('enableSampling')
+def enableSampling(message):
+    print("sampling enabled")
+    session['samplingEnabled'] = True
+    emit('samplingEnabled')
+
+@socketio.on('stopSampling')
+def stopSampling(message):
+    session['samplingEnabled'] = False
+    emit('samplingDisabled')
+
+@socketio.on('sampledVarNames')
+def sampledVarNames(message):
+    session['sampledVars'] = message
+    print(session['sampledVars'])
+
+@socketio.on('startSampling')
+def sendSamples(message):
+    print(session['samplingEnabled'])
+    while session['samplingEnabled']:
+        emit('sampledData', json.dumps(getSampledData(session['sampledVars'])))
+        time.sleep(0.1)
+
+@socketio.on('message')
+def handle_message(message):
+    print(message)
+    emit('response', 'hello from server!')
 
 @app.route('/', methods=['GET'])
 def home():
@@ -117,6 +155,16 @@ def getVal(odrives, keyList):
     else:
         return RO.get_value()
 
+def getSampledData(vars):
+    #use getVal to populate a dict
+    #return a dict {path:value}
+    samples = {}
+    for path in vars["paths"]:
+        keys = path.split('.')
+        samples[path] = getVal(odrives, keys)
+
+    return samples
+
 # call a function from a GET request
 
 
@@ -134,4 +182,4 @@ if __name__ == "__main__":
     odrives = get_all_odrives()
     for (index, odrv) in enumerate(odrives):
         odriveDict["odrive" + str(index)] = dictFromRO(odrv)
-    app.run(host='0.0.0.0', port=8080)
+    socketio.run(app, host='0.0.0.0', port=8080)
