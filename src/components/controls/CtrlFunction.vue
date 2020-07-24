@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <button class="delete" @click="$emit('delete-ctrl', path)">X</button>
+    <button class="close-button" @click="$emit('delete-ctrl', path)">X</button>
     <button @click="executeFunction" class="execute">{{name}}()</button>
   </div>
 </template>
@@ -80,13 +80,5 @@ export default {
 
 .card:active {
   background-color: lightblue;
-}
-
-.delete {
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0 5px;
-  margin-right: 10px;
-  border: 1px solid black;
 }
 </style>

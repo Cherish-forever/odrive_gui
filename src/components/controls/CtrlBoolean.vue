@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <button class="delete" @click="$emit('delete-ctrl', path)">X</button>
+    <button class="close-button" @click="$emit('delete-ctrl', path)">X</button>
     <span class="ctrlName">{{name}}:</span>
     <span class="ctrlVal">{{value}}</span>
     <input class="ctrlInput" v-if="writeAccess" type="checkbox" v-bind:value="value" @click="putVal"/>
@@ -70,14 +70,6 @@ export default {
 <style scoped>
 .ctrlVal {
   font-weight: bold;
-}
-
-.delete {
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0 5px;
-  margin-right: 10px;
-  border: 1px solid black;
 }
 
 .ctrlInput {

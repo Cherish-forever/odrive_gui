@@ -1,8 +1,8 @@
 <template>
   <div class="card plot">
     <div class="plot-header">
-      <button class="delete" @click="$emit('delete-plot', name)">X</button>
-      <button class="add-var" @click="$emit('add-var', name)">+</button>
+      <button class="close-button" @click="$emit('delete-plot', name)">X</button>
+      <button class="close-button" @click="$emit('add-var', name)">+</button>
     </div>
     <line-chart v-if="loaded" :chart-data="datacollection" :options="dataOptions"></line-chart>
   </div>

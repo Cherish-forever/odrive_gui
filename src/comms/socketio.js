@@ -16,6 +16,11 @@ export function setUrl(path) {
     initSocket(url);
 }
 
+export function closeSocket() {
+    socket.close();
+    socket = undefined;
+}
+
 export function addEventListener(event) {
     if (!socket) {
         initSocket(url);

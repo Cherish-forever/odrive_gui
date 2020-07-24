@@ -177,6 +177,9 @@ export default new Vuex.Store({
                 type: "disconnect",
                 callback: () => {
                     context.commit("setServerStatus", false);
+                    console.log('server disconnect');
+                    socketio.closeSocket();
+                    context.commit('setAxes', []);
                 }
             });
             socketio.addEventListener({
