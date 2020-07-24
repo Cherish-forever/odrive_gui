@@ -22,7 +22,8 @@ export default new Vuex.Store({
         ],
         timeSampleStart: 0,
         sampledProperties: [], // make this an object where the full path is a key and the value is the sampled var
-        propSamples: { time: [] } // {time: [time values], ...path: [path var values]}
+        propSamples: { time: [] }, // {time: [time values], ...path: [path var values]}
+        newData: false
     },
     // mutations are functions that change the data
     mutations: {
@@ -91,6 +92,7 @@ export default new Vuex.Store({
             if (state.propSamples["time"].length > 100) {
                 state.propSamples["time"].splice(0, 1);
             }
+            state.newData = true;
         },
         setServerStatus(state, val) {
             state.serverConnected = val;

@@ -262,6 +262,12 @@ export default {
     },
     startsample() {
       socketio.sendEvent({
+        type: "sampledVarNames",
+        data: {
+          paths: this.$store.state.sampledProperties,
+        },
+      });
+      socketio.sendEvent({
         type: "enableSampling",
       });
       this.$store.state.timeSampleStart = Date.now();
@@ -282,7 +288,7 @@ export default {
     //grab full JSON
     //this.getOdrives();
 
-    this.$store.dispatch("setServerAddress", "http://localhost:8080");
+    this.$store.dispatch("setServerAddress", "http://localhost:80");
     // connect to socketio on server for sampled data
     this.updateOdrives();
   },

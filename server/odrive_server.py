@@ -1,15 +1,12 @@
 import odrive
-from odrive.enums import *
-import http.server
-import socketserver
 import flask
 from flask import make_response, request, jsonify, session
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 import fibre
 import json
-import re
 import time
+
 
 # interface for odrive GUI to get data from odrivetool
 
@@ -30,9 +27,9 @@ odriveDict = {}
 configDict = {}
 
 def get_all_odrives():
-    #odrives = odrive.find_any(timeout=5, find_multiple=100)
     odrives = []
-    odrives.append(odrive.find_any())
+    odrives.append(odrive.find_any(timeout=5)) #, find_multiple=100)
+    #odrives.append(odrive.find_any())
     return odrives
 
 @socketio.on('enableSampling')
@@ -56,7 +53,7 @@ def sendSamples(message):
     print(session['samplingEnabled'])
     while session['samplingEnabled']:
         emit('sampledData', json.dumps(getSampledData(session['sampledVars'])))
-        time.sleep(0.1)
+        time.sleep(0.05)
 
 @socketio.on('message')
 def handle_message(message):
@@ -179,7 +176,13 @@ def callFunc(odrives, keyList):
 
 
 if __name__ == "__main__":
-    odrives = get_all_odrives()
+    # busy wait for connection
+    while len(odrives) == 0:
+        print("looking for odrives...")
+        odrives = get_all_odrives()
+
+    print("found odrives!")
+
     for (index, odrv) in enumerate(odrives):
         odriveDict["odrive" + str(index)] = dictFromRO(odrv)
-    socketio.run(app, host='0.0.0.0', port=8080)
+    socketio.run(app, host='0.0.0.0', port=80)

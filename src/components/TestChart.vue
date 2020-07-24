@@ -84,7 +84,7 @@ export default {
     liveData() {
       setTimeout(() => {
         this.liveData();
-      }, 100);
+      }, 10);
       this.fillData();
     }
   }
