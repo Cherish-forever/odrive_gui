@@ -32,6 +32,7 @@
 import CtrlBoolean from "../components/controls/CtrlBoolean.vue";
 import CtrlNumeric from "../components/controls/CtrlNumeric.vue";
 import CtrlFunction from "../components/controls/CtrlFunction.vue";
+import CtrlSlider from "../components/controls/CtrlSlider.vue";
 
 //temp for testing plots
 import TestChart from "../components/TestChart.vue";
@@ -42,6 +43,7 @@ export default {
     CtrlBoolean,
     CtrlNumeric,
     CtrlFunction,
+    CtrlSlider,
     TestChart
   },
   props: ["dash", "odrives"],

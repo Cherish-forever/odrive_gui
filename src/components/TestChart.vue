@@ -41,13 +41,13 @@ export default {
           }
         },
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
       }
     };
   },
   mounted() {
     this.timeStart = Date.now();
-    this.initData(); //set label for dataset and color
+    //this.initData(); //set label for dataset and color
     this.liveData();
   },
   methods: {
@@ -84,7 +84,7 @@ export default {
     liveData() {
       setTimeout(() => {
         this.liveData();
-      }, 10);
+      }, 20);
       this.fillData();
     }
   }

@@ -16,7 +16,7 @@ export default new Vuex.Store({
         dashboards: [
             {
                 name: "Start",
-                component: "Start"
+                component: "Start",
             },
             { name: "Config", component: "Dashboard", controls: [], plots: [] }
         ],
@@ -84,12 +84,12 @@ export default new Vuex.Store({
             // payload is object of paths and values
             for (const path of Object.keys(payload)) {
                 state.propSamples[path].push(payload[path]);
-                if (state.propSamples[path].length > 100) {
+                if (state.propSamples[path].length > 250) {
                     state.propSamples[path].splice(0, 1); // emulate circular buffer
                 }
             }
             state.propSamples["time"].push((Date.now() - state.timeSampleStart) / 1000);
-            if (state.propSamples["time"].length > 100) {
+            if (state.propSamples["time"].length > 250) {
                 state.propSamples["time"].splice(0, 1);
             }
             state.newData = true;

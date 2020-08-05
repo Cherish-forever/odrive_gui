@@ -53,7 +53,7 @@ def sendSamples(message):
     print(session['samplingEnabled'])
     while session['samplingEnabled']:
         emit('sampledData', json.dumps(getSampledData(session['sampledVars'])))
-        time.sleep(0.05)
+        time.sleep(0.02)
 
 @socketio.on('message')
 def handle_message(message):
@@ -185,4 +185,4 @@ if __name__ == "__main__":
 
     for (index, odrv) in enumerate(odrives):
         odriveDict["odrive" + str(index)] = dictFromRO(odrv)
-    socketio.run(app, host='0.0.0.0', port=80)
+    socketio.run(app, host='0.0.0.0', port=5000)

@@ -10,9 +10,10 @@
       <button class="dash-button" @click="stopsample">stop sampling</button>
       <button
         v-for="dash in dashboards"
-        v-bind:key="dash.name"
+        v-bind:key="dash.id"
         v-bind:class="['dash-button', { active: currentDash === dash.name}]"
         v-on:click="currentDash = dash.name"
+        v-on:dblclick="changeDashName(dash.id)"
       >{{ dash.name }}</button>
       <button class="dash-button dash-add" @click="addDash">+</button>
       <button class="emergency-stop" @click="estop">STOP</button>
@@ -125,7 +126,7 @@ export default {
   },
   methods: {
     updateOdrives() {
-      if (this.$store.state.serverConnected == true) {
+      if (this.$store.state.serverConnected == true){//} && this.sampling == false) {
         this.$store.dispatch("getOdrives");
       }
       setTimeout(() => {
@@ -139,9 +140,14 @@ export default {
       this.dashboards.push({
         component: "Dashboard",
         name: dashname,
+        id: uuidv4(),
         controls: [],
         plots: [],
       });
+    },
+    changeDashName(e) {
+      console.log(e);
+      console.log("double clicked dashboard name");
     },
     showTree() {
       //show the parameter tree
@@ -174,7 +180,8 @@ export default {
                 break;
               case "number":
                 dash.controls.push({
-                  controlType: "CtrlNumeric",
+                  //controlType: "CtrlNumeric",
+                  controlType: "CtrlSlider",
                   path: e.path,
                 });
                 //this.$store.commit("addSampledProperty", e.path);
@@ -288,7 +295,7 @@ export default {
     //grab full JSON
     //this.getOdrives();
 
-    this.$store.dispatch("setServerAddress", "http://localhost:80");
+    this.$store.dispatch("setServerAddress", "http://127.0.0.1:80");
     // connect to socketio on server for sampled data
     this.updateOdrives();
   },
