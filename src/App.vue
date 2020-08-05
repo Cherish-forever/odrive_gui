@@ -334,7 +334,7 @@ export default {
     //grab full JSON
     //this.getOdrives();
 
-    this.$store.dispatch("setServerAddress", "http://127.0.0.1:80");
+    this.$store.dispatch("setServerAddress", "http://127.0.0.1:5000");
     // connect to socketio on server for sampled data
     this.updateOdrives();
   },

@@ -2,19 +2,20 @@
   <div class="card">
     <div>
       <button class="close-button" @click="$emit('delete-ctrl', path)">X</button>
-      <span class="ctrlName">{{name}}:</span>
+      <span class="ctrlName">{{name}}</span>
     </div>
-    <div>
-      <input type="number" v-model="min" />
-      <vue-slider v-model="value" />
-      <input type="number" v-model="max" />
+    <div class="slider-container">
+      <input type="number" :value="min" v-on:change="setMin"/>
+      <!-- <vue-slider v-model="value" :min="min" :max="max" :interval="interval" /> -->
+      <vue-slider v-model="value" :data="data" @change="putVal"/>
+      <input type="number" :value="max" v-on:change="setMax" />
     </div>
   </div>
 </template>
 
 <script>
 import VueSlider from "vue-slider-component";
-import "vue-slider-component/theme/antd.css";
+import "vue-slider-component/theme/default.css";
 const axios = require("axios");
 
 export default {
@@ -32,6 +33,7 @@ export default {
       value: 0,
       min: 0,
       max: 1,
+      data: []
     };
   },
   computed: {
@@ -49,16 +51,25 @@ export default {
       }
       return odriveObj["readonly"] === false;
     },
+    interval: function () {
+      return (this.max - this.min) / 100;
+    },
+    sliderData: function () {
+      let interval = (this.max - this.min) / 100;
+      return Array.from(Array(101), (_, i) => this.min + interval * i);
+    }
   },
   methods: {
-    putVal: function (e) {
+    putVal: function (value, index) {
+      console.log(value);
+      console.log(index);
       var params = new URLSearchParams();
       let keys = this.path.split(".");
       keys.shift();
       for (const key of keys) {
         params.append("key", key);
       }
-      params.append("val", e.target.value);
+      params.append("val", value);
       params.append("type", "numeric");
       console.log(params.toString());
       let request = {
@@ -71,6 +82,29 @@ export default {
         request
       );
     },
+    setMin: function (e) {
+      this.min = parseFloat(e.target.value);
+      this.data = Array.from(Array(101), (_, i) => this.min + (this.max-this.min) / 100 * i);
+    },
+    setMax: function (e) {
+      this.max = parseFloat(e.target.value);
+      this.data = Array.from(Array(101), (_, i) => this.min + (this.max-this.min) / 100 * i);
+    }
+  },
+  mounted() {
+    let initVal = () => {
+      let keys = this.path.split(".");
+      keys.shift(); // don't need first key here
+      let odriveObj = this.$store.state.odrives;
+      for (const key of keys) {
+        odriveObj = odriveObj[key];
+      }
+      return parseFloat(odriveObj["val"]);
+    };
+    this.value = initVal();
+    this.max = this.value * 4;
+    this.min = this.value / 4;
+    this.data = Array.from(Array(101), (_, i) => this.min + (this.max-this.min) / 100 * i);
   },
 };
 </script>
@@ -78,5 +112,36 @@ export default {
 <style scoped>
 .ctrlVal {
   font-weight: bold;
+}
+
+.slider-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 0.4rem;
+}
+
+.vue-slider {
+  flex-grow: 3;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
+}
+
+input {
+  width: 5rem;
+  font-family: inherit;
+  border-style: none;
+  border-bottom: 1px solid grey;
+  text-align: center;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
 }
 </style>
