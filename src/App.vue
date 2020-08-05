@@ -8,6 +8,8 @@
         v-bind:class="[{active: sampling === true}]"
       >start sampling</button>
       <button class="dash-button" @click="stopsample">stop sampling</button>
+      <button class="dash-button" @click="exportDash">export dash</button>
+      <button class="dash-button" @click="importDashWrapper">import dash <input type="file" id="inputDash" @change="importDashFile($event.target.files)" style="display:none"></button>
       <button
         v-for="dash in dashboards"
         v-bind:key="dash.id"
@@ -61,6 +63,7 @@ import Axis from "./components/Axis.vue";
 import { JSONView } from "vue-json-component";
 import { v4 as uuidv4 } from "uuid";
 import * as socketio from "./comms/socketio";
+import { saveAs } from 'file-saver';
 
 //let propSamplePeriod = 100; //sampling period for properties in ms
 
@@ -144,6 +147,42 @@ export default {
         controls: [],
         plots: [],
       });
+    },
+    exportDash() {
+      console.log("exporting dashboard");
+      const blob = new Blob([JSON.stringify(this.dash, null, 2)], {type: 'application/json'});
+      saveAs(blob, this.dash.name);
+    },
+    importDashWrapper() {
+      console.log("importing dashboard");
+      const inputElem = document.getElementById("inputDash");
+      if (inputElem) {
+        inputElem.click();
+      }
+    },
+    importDashFile(files) {
+      console.log("file handler callback")
+      let file = files[0];
+      const reader = new FileReader();
+      // this is ugly, but it gets around scoping problems the "load" callback
+      let dashes = this.dashboards;
+      let addImportedDash = (dash) => {
+        console.log(dash)
+        dashes.push(dash);
+        // plots will have variables associated, add them to sampled variables list
+        for (const plot of dash.plots) {
+          console.log(plot)
+          for (const path of plot.vars) {
+            console.log(path);
+            //addsampledprop(path);
+            this.$store.commit("addSampledProperty", path);
+          }
+        }
+      }
+      reader.addEventListener("load", function(e) {
+        addImportedDash(JSON.parse(e.target.result));
+      });
+      reader.readAsText(file);
     },
     changeDashName(e) {
       console.log(e);
