@@ -9,7 +9,15 @@
       >start sampling</button>
       <button class="dash-button" @click="stopsample">stop sampling</button>
       <button class="dash-button" @click="exportDash">export dash</button>
-      <button class="dash-button" @click="importDashWrapper">import dash <input type="file" id="inputDash" @change="importDashFile($event.target.files)" style="display:none"></button>
+      <button class="dash-button" @click="importDashWrapper">
+        import dash
+        <input
+          type="file"
+          id="inputDash"
+          @change="importDashFile($event.target.files)"
+          style="display:none"
+        />
+      </button>
       <button
         v-for="dash in dashboards"
         v-bind:key="dash.id"
@@ -42,9 +50,12 @@
       v-bind:odrives="odrives"
       v-bind:dash="dash"
       v-on:add-control="addControlToDash"
+      v-on:add-slider="addSliderToDash"
       v-on:delete-ctrl="removeCtrlFromDash"
       v-on:add-plot="addPlotToDash"
       v-on:delete-plot="removePlotFromDash"
+      v-on:add-action="addActionToDash"
+      v-on:delete-action="removeActionFromDash"
       v-on:add-var="addVarToPlot"
       v-on:delete-var="removeVarFromPlot"
     ></component>
@@ -63,7 +74,7 @@ import Axis from "./components/Axis.vue";
 import { JSONView } from "vue-json-component";
 import { v4 as uuidv4 } from "uuid";
 import * as socketio from "./comms/socketio";
-import { saveAs } from 'file-saver';
+import { saveAs } from "file-saver";
 
 //let propSamplePeriod = 100; //sampling period for properties in ms
 
@@ -79,10 +90,11 @@ export default {
     return {
       currentDash: "Start",
       paramsVisible: false,
-      addToCtrl: false,
+      addCtrl: false,
+      addAction: false,
+      addSlider: false,
       addToPlot: false,
       currentPlot: undefined,
-      sampling: false,
     };
   },
   computed: {
@@ -126,10 +138,14 @@ export default {
     dashboards: function () {
       return this.$store.state.dashboards;
     },
+    sampling: function () {
+      return this.$store.state.sampling;
+    },
   },
   methods: {
     updateOdrives() {
-      if (this.$store.state.serverConnected == true){//} && this.sampling == false) {
+      if (this.$store.state.serverConnected == true) {
+        //} && this.sampling == false) {
         this.$store.dispatch("getOdrives");
       }
       setTimeout(() => {
@@ -145,12 +161,15 @@ export default {
         name: dashname,
         id: uuidv4(),
         controls: [],
+        actions: [],
         plots: [],
       });
     },
     exportDash() {
       console.log("exporting dashboard");
-      const blob = new Blob([JSON.stringify(this.dash, null, 2)], {type: 'application/json'});
+      const blob = new Blob([JSON.stringify(this.dash, null, 2)], {
+        type: "application/json",
+      });
       saveAs(blob, this.dash.name);
     },
     importDashWrapper() {
@@ -161,25 +180,25 @@ export default {
       }
     },
     importDashFile(files) {
-      console.log("file handler callback")
+      console.log("file handler callback");
       let file = files[0];
       const reader = new FileReader();
       // this is ugly, but it gets around scoping problems the "load" callback
       let dashes = this.dashboards;
       let addImportedDash = (dash) => {
-        console.log(dash)
+        console.log(dash);
         dashes.push(dash);
         // plots will have variables associated, add them to sampled variables list
         for (const plot of dash.plots) {
-          console.log(plot)
+          console.log(plot);
           for (const path of plot.vars) {
             console.log(path);
             //addsampledprop(path);
             this.$store.commit("addSampledProperty", path);
           }
         }
-      }
-      reader.addEventListener("load", function(e) {
+      };
+      reader.addEventListener("load", function (e) {
         addImportedDash(JSON.parse(e.target.result));
       });
       reader.readAsText(file);
@@ -194,19 +213,33 @@ export default {
     },
     hideTree() {
       this.paramsVisible = false;
-      this.addToCtrl = false;
+      this.addCtrl = false;
       this.addToPlot = false;
+      this.addAction = false;
     },
     addControlToDash() {
-      this.addToCtrl = true;
+      this.addCtrl = true;
       //show parameter menu
+      this.showTree();
+    },
+    addActionToDash() {
+      this.addAction = true;
+      this.showTree();
+    },
+    addSliderToDash() {
+      this.addSlider = true;
       this.showTree();
     },
     addVarToElement(e) {
       //when the parameter tree is open and a parameter is clicked,
       //add the clicked parameter to the list of controls for the
       //current dashboard
-      if (this.addToCtrl == true && this.addToPlot == false) {
+      if (
+        this.addCtrl == true &&
+        this.addToPlot == false &&
+        this.addAction == false &&
+        this.addSlider == false
+      ) {
         for (const dash of this.dashboards) {
           if (this.currentDash === dash.name && this.currentDash !== "Start") {
             switch (typeof e.value) {
@@ -219,8 +252,7 @@ export default {
                 break;
               case "number":
                 dash.controls.push({
-                  //controlType: "CtrlNumeric",
-                  controlType: "CtrlSlider",
+                  controlType: "CtrlNumeric",
                   path: e.path,
                 });
                 //this.$store.commit("addSampledProperty", e.path);
@@ -237,7 +269,12 @@ export default {
             break;
           }
         }
-      } else if (this.addToCtrl == false && this.addToPlot == true) {
+      } else if (
+        this.addCtrl == false &&
+        this.addToPlot == true &&
+        this.addAction == false &&
+        this.addSlider == false
+      ) {
         // add the selected element to the plot var list
         // add the selected element to the sampling var list
         // find the plot, append path to plot.vars
@@ -255,6 +292,45 @@ export default {
             break;
           }
         }
+      } else if (
+        this.addCtrl == false &&
+        this.addToPlot == false &&
+        this.addAction == true &&
+        this.addSlider == false
+      ) {
+        // add an action to the current dash
+        for (const dash of this.dashboards) {
+          if (this.currentDash === dash.name && this.currentDash !== "Start") {
+            let id = uuidv4();
+            dash.actions.push({
+              id: id,
+              path: e.path,
+            });
+            break;
+          }
+        }
+      } else if (
+        this.addCtrl == false &&
+        this.addToPlot == false &&
+        this.addAction == false &&
+        this.addSlider == true
+      ) {
+        // add a slider to the list of controls if the selected item is valid (numeric)
+        for (const dash of this.dashboards) {
+          if (this.currentDash === dash.name && this.currentDash !== "Start") {
+            switch (typeof e.value) {
+              case "number":
+                dash.controls.push({
+                  controlType: "CtrlSlider",
+                  path: e.path,
+                });
+                break;
+              default:
+                break;
+            }
+            break;
+          }
+        }
       }
     },
     removeCtrlFromDash(path) {
@@ -264,6 +340,19 @@ export default {
           for (const control of dash.controls) {
             if (control.path == path) {
               dash.controls.splice(dash.controls.indexOf(control), 1);
+              break;
+            }
+          }
+          break;
+        }
+      }
+    },
+    removeActionFromDash(id) {
+      for (const dash of this.dashboards) {
+        if (this.currentDash === dash.name && this.currentDash !== "Start") {
+          for (const action of dash.actions) {
+            if (action.id == id) {
+              dash.actions.splice(dash.actions.indexOf(action), 1);
               break;
             }
           }
@@ -317,13 +406,13 @@ export default {
         type: "enableSampling",
       });
       this.$store.state.timeSampleStart = Date.now();
-      this.sampling = true;
+      this.$store.state.sampling = true;
     },
     stopsample() {
       socketio.sendEvent({
         type: "stopSampling",
       });
-      this.sampling = false;
+      this.$store.state.sampling = false;
     },
     estop() {
       // send stop command to odrives
@@ -451,5 +540,9 @@ button {
   font-weight: bold;
   color: white;
   display: none;
+}
+
+json-view {
+  z-index: 2;
 }
 </style>

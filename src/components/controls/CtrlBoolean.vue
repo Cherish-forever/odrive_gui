@@ -2,8 +2,16 @@
   <div class="card">
     <button class="close-button" @click="$emit('delete-ctrl', path)">X</button>
     <span class="ctrlName">{{name}}:</span>
-    <span class="ctrlVal">{{value}}</span>
-    <input class="ctrlInput" v-if="writeAccess" type="checkbox" v-bind:value="value" @click="putVal"/>
+    <div class="right">
+      <span class="ctrlVal">{{value}}</span>
+      <input
+        class="ctrlInput"
+        v-if="writeAccess"
+        type="checkbox"
+        v-bind:value="value"
+        @click="putVal"
+      />
+    </div>
   </div>
 </template>
 
@@ -15,10 +23,10 @@ export default {
   //type checking here for properties
   props: {
     path: String,
-    odrives: Object
+    odrives: Object,
   },
   computed: {
-    value: function() {
+    value: function () {
       let keys = this.path.split(".");
       keys.shift(); // don't need first key here
       let odriveObj = this.odrives;
@@ -27,12 +35,12 @@ export default {
       }
       return odriveObj["val"];
     },
-    name: function() {
+    name: function () {
       let keys = this.path.split(".");
       keys.shift();
       return keys.join(".");
     },
-    writeAccess: function() {
+    writeAccess: function () {
       let keys = this.path.split(".");
       keys.shift(); // don't need first key here
       let odriveObj = this.odrives;
@@ -40,11 +48,11 @@ export default {
         odriveObj = odriveObj[key];
       }
       return odriveObj["readonly"] == false;
-    }
+    },
   },
   methods: {
-    putVal: function(e) {
-    console.log(e.target.checked);
+    putVal: function (e) {
+      console.log(e.target.checked);
       var params = new URLSearchParams();
       let keys = this.path.split(".");
       keys.shift();
@@ -55,15 +63,15 @@ export default {
       params.append("type", "boolean");
       console.log(params.toString());
       let request = {
-        params: params
+        params: params,
       };
       axios.put(
         this.$store.state.odriveServerAddress + "/api/property",
         null,
         request
       );
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -74,5 +82,15 @@ export default {
 
 .ctrlInput {
   margin-left: 10px;
+}
+
+.right {
+  display: flex;
+  flex-direction: row;
+  margin-left: auto;
+}
+
+.card {
+  display: flex;
 }
 </style>

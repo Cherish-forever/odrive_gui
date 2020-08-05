@@ -5,18 +5,37 @@
         <template v-for="(control, index) in dash.controls">
           <component
             :is="control.controlType"
-            :key="index"
+            :key="index + '-control'"
             :path="control.path"
             :name="control.name"
             :odrives="odrives"
             v-on:delete-ctrl="deleteCtrl"
           />
         </template>
-        <div class="add-button card" @click="$emit('add-control')">Add Controls</div>
+        <div class="control-buttons">
+          <div class="add-button card" @click="$emit('add-control')">Add Control</div>
+          <div class="add-button card" @click="$emit('add-slider')">Add Slider</div>
+        </div>
+        <template v-for="(action, index) in dash.actions">
+          <action
+            :id="action.id"
+            :key="index + '-action'"
+            :path="action.path"
+            :odrives="odrives"
+            v-on:delete-action="deleteAction"
+          />
+        </template>
+        <div class="add-button card" @click="$emit('add-action')">Add Action</div>
       </div>
       <div class="plots">
         <template v-for="(plot, index) in dash.plots">
-          <test-chart :plot="plot" :key="index" :name="plot.name" v-on:delete-plot="deletePlot" v-on:add-var="addVar"/>
+          <plot
+            :plot="plot"
+            :key="index"
+            :name="plot.name"
+            v-on:delete-plot="deletePlot"
+            v-on:add-var="addVar"
+          />
         </template>
         <div class="add-button card" @click="$emit('add-plot')">Add Plot</div>
       </div>
@@ -33,9 +52,8 @@ import CtrlBoolean from "../components/controls/CtrlBoolean.vue";
 import CtrlNumeric from "../components/controls/CtrlNumeric.vue";
 import CtrlFunction from "../components/controls/CtrlFunction.vue";
 import CtrlSlider from "../components/controls/CtrlSlider.vue";
-
-//temp for testing plots
-import TestChart from "../components/TestChart.vue";
+import Plot from "../components/plots/Plot.vue";
+import Action from "../components/actions/Action.vue";
 
 export default {
   name: "Dashboard",
@@ -44,7 +62,8 @@ export default {
     CtrlNumeric,
     CtrlFunction,
     CtrlSlider,
-    TestChart
+    Plot,
+    Action,
   },
   props: ["dash", "odrives"],
   data() {
@@ -54,13 +73,17 @@ export default {
     deleteCtrl(e) {
       this.$emit("delete-ctrl", e);
     },
+    deleteAction(e) {
+      this.$emit("delete-action", e);
+      console.log(e);
+    },
     deletePlot(e) {
       this.$emit("delete-plot", e);
     },
     addVar(e) {
       this.$emit("add-var", e);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -88,6 +111,8 @@ export default {
   background-color: lightcyan;
   width: 120px;
   margin: 10px auto;
+  margin-left: 10px;
+  margin-right: 10px;
   text-align: center;
   border-radius: 20px;
   cursor: pointer;
@@ -104,5 +129,10 @@ export default {
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
+}
+
+.control-buttons {
+  display: flex;
+  flex-direction: row;
 }
 </style>

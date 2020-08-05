@@ -18,12 +18,13 @@ export default new Vuex.Store({
                 name: "Start",
                 component: "Start",
             },
-            { name: "Config", component: "Dashboard", controls: [], plots: [] }
+            { name: "Config", component: "Dashboard", controls: [], actions: [], plots: [] }
         ],
         timeSampleStart: 0,
         sampledProperties: [], // make this an object where the full path is a key and the value is the sampled var
         propSamples: { time: [] }, // {time: [time values], ...path: [path var values]}
-        newData: false
+        newData: false,
+        sampling: false,
     },
     // mutations are functions that change the data
     mutations: {
