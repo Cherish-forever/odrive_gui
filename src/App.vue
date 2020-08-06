@@ -216,6 +216,7 @@ export default {
       this.addCtrl = false;
       this.addToPlot = false;
       this.addAction = false;
+      this.addSlider = false;
     },
     addControlToDash() {
       this.addCtrl = true;
