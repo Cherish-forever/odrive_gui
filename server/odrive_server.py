@@ -1,5 +1,6 @@
 import sys
 import flask
+import os
 from flask import make_response, request, jsonify, session
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
@@ -179,14 +180,14 @@ def callFunc(odrives, keyList):
 
 if __name__ == "__main__":
     # try to import based on command line arguments or config file
-    try:
-        importFile = open("server_config.txt", "r")
-        for line in importFile:
-            print(line.rstrip())
-            sys.path.insert(0,line.rstrip())
-        importFile.close()
-    except:
-        pass
+    fullPath = os.path.realpath(__file__)
+    dirName = os.path.dirname(fullPath)
+    print("executing in: " + str(dirName))
+    importFile = open(dirName + "/server_config.txt", "r")
+    for line in importFile:
+        print(line.rstrip())
+        sys.path.insert(0,line.rstrip())
+    importFile.close()
 
     import odrive
     import fibre
