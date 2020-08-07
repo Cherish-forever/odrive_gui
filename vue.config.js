@@ -4,6 +4,7 @@ module.exports = {
     pluginOptions: {
         electronBuilder: {
             builderOptions: {
+                "productName": "ODrive GUI",
                 "asar": false,
                 "extraResources": "server"
             }

@@ -145,12 +145,15 @@ def postVal(odrives, keyList, value, argType):
 def getVal(odrives, keyList):
     index = int(''.join([char for char in keyList.pop(0) if char.isnumeric()]))
     RO = odrives[index]
-    for key in keyList:
-        RO = RO._remote_attributes[key]
-    if isinstance(RO, fibre.remote_object.RemoteObject):
-        return dictFromRO(RO)
-    else:
-        return RO.get_value()
+    try:
+        for key in keyList:
+            RO = RO._remote_attributes[key]
+        if isinstance(RO, fibre.remote_object.RemoteObject):
+            return dictFromRO(RO)
+        else:
+            return RO.get_value()
+    except:
+        return 0
 
 def getSampledData(vars):
     #use getVal to populate a dict

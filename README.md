@@ -1,19 +1,17 @@
 # odrive_gui
 This is the repo for the ODrive GUI
 
-Currently, this is a Vue.js web app with a python backend using Flask
+Flask (python 3) backend with Vue.js frontend, packaged with Electron.
 
-This may change in the future
+Python requirements: `pip install flask flask-socketio flask-cors odrive`
 
-To run the GUI:
+If the default odrive python package is not desired, a config file must be created to point `odrive_server.py` toward the correct modules.
 
-Clone this repo and clone the ODrive git repo, preferably the devel branch
+In the default installation directory, place a text file called `server_config.txt` in the same folder as `odrive_server.py`
 
-Move the odrive_server.py file from this repo to the `tools` folder in the odrive repo
+On Windows 10, this directory is `C:\Users\(username)\AppData\Local\Programs\odrive_gui\resources\server`
 
-Navigate to the tools folder and start the server with `python3 odrive_server.py`
-
-To start the deployment server for the web app, run `npm run serve` from the root of this repo. 
+`server_config.txt` should have content in this format: `odrive: <full path to odrive python utils>`
 
 
 ## Project setup
