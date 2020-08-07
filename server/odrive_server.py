@@ -1,5 +1,4 @@
-import odrive
-import fibre
+import sys
 import flask
 from flask import make_response, request, jsonify, session
 from flask_socketio import SocketIO, send, emit
@@ -180,6 +179,18 @@ def callFunc(odrives, keyList):
 
 if __name__ == "__main__":
     # try to import based on command line arguments or config file
+    try:
+        importFile = open("server_config.txt", "r")
+        for line in importFile:
+            print(line.rstrip())
+            sys.path.insert(0,line.rstrip())
+        importFile.close()
+    except:
+        pass
+
+    import odrive
+    import fibre
+
 
     # busy wait for connection
     while len(odrives) == 0:

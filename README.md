@@ -11,8 +11,15 @@ In the default installation directory, place a text file called `server_config.t
 
 On Windows 10, this directory is `C:\Users\(username)\AppData\Local\Programs\odrive_gui\resources\server`
 
-`server_config.txt` should have content in this format: `odrive: <full path to odrive python utils>`
+`server_config.txt` should have 1 path per line for the odrive and fibre modules
 
+example: 
+```
+C:\Users\<username>\repos\ODrive\tools
+C:\Users\<username>\repos\ODrive\Firmware
+```
+
+The first line is for your local version of odrivetool, the second is for fibre.
 
 ## Project setup
 ```
