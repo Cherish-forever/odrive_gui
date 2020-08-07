@@ -5,6 +5,9 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+const spawn = require('child_process').spawn;
+const path = require('path');
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
@@ -15,6 +18,16 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 function createWindow() {
+  // Spawn the python server
+  const scriptFilename = path.join(app.getAppPath(), '../server', 'odrive_server.py');
+  console.log(scriptFilename);
+  var python = spawn('python',[scriptFilename]);
+  python.stdout.on('data',function(data) {
+    console.log(data.toString('utf8'));
+  });
+  python.stderr.on('data',function(data) {
+    console.log(data.toString('utf8'));
+  });
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
@@ -31,7 +44,7 @@ function createWindow() {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    // if (!process.env.IS_TEST) win.webContents.openDevTools()
+    if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development

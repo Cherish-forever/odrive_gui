@@ -1,9 +1,9 @@
 import odrive
+import fibre
 import flask
 from flask import make_response, request, jsonify, session
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
-import fibre
 import json
 import time
 
@@ -28,7 +28,7 @@ configDict = {}
 
 def get_all_odrives():
     odrives = []
-    odrives.append(odrive.find_any(timeout=5)) #, find_multiple=100)
+    odrives.append(odrive.find_any(timeout=15)) #, find_multiple=100)
     #odrives.append(odrive.find_any())
     return odrives
 
@@ -176,6 +176,8 @@ def callFunc(odrives, keyList):
 
 
 if __name__ == "__main__":
+    # try to import based on command line arguments or config file
+
     # busy wait for connection
     while len(odrives) == 0:
         print("looking for odrives...")
