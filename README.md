@@ -5,21 +5,14 @@ Flask (python 3) backend with Vue.js frontend, packaged with Electron.
 
 Python requirements: `pip install flask flask-socketio flask-cors odrive`
 
-If the default odrive python package is not desired, a config file must be created to point `odrive_server.py` toward the correct modules.
+If the default odrive python package is not desired, the path to the modules can be passed as command line arguments.
 
-In the default installation directory, place a text file called `server_config.txt` in the same folder as `odrive_server.py`
-
-On Windows 10, this directory is `C:\Users\(username)\AppData\Local\Programs\odrive_gui\resources\server`
-
-`server_config.txt` should have 1 path per line for the odrive and fibre modules
-
-example: 
+example on windows 10: 
 ```
-C:\Users\<username>\repos\ODrive\tools
-C:\Users\<username>\repos\ODrive\Firmware
+./odrive_gui_win.exe C:/Users/<you>/ODrive/tools C:/Users/<you>/ODrive/Firmware
 ```
 
-The first line is for your local version of odrivetool, the second is for fibre.
+The first argument is for your local version of odrivetool, the second is for fibre.
 
 ## Project setup
 ```

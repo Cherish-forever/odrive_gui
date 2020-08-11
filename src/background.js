@@ -19,9 +19,14 @@ protocol.registerSchemesAsPrivileged([
 
 function createWindow() {
   // Spawn the python server
-  const scriptFilename = path.join(app.getAppPath(), '../server', 'odrive_server.py');
-  console.log(scriptFilename);
-  var python = spawn('python',[scriptFilename]);
+  let scriptFilename = path.join(app.getAppPath(), '../server', 'odrive_server.py');
+  const args = process.argv;
+  let effectiveCommand = [];
+  effectiveCommand.push(scriptFilename);
+  for (const arg of args.slice(1)) {
+    effectiveCommand.push(arg);
+  }
+  var python = spawn('python', effectiveCommand);
   python.stdout.on('data',function(data) {
     console.log(data.toString('utf8'));
   });

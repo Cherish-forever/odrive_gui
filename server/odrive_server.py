@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 import json
 import time
+import argparse
 
 
 # interface for odrive GUI to get data from odrivetool
@@ -179,15 +180,15 @@ def callFunc(odrives, keyList):
 
 
 if __name__ == "__main__":
+    print("args from python:")
+    print(sys.argv[1:])
     # try to import based on command line arguments or config file
-    fullPath = os.path.realpath(__file__)
-    dirName = os.path.dirname(fullPath)
-    print("executing in: " + str(dirName))
-    importFile = open(dirName + "/server_config.txt", "r")
-    for line in importFile:
-        print(line.rstrip())
-        sys.path.insert(0,line.rstrip())
-    importFile.close()
+
+    for optPath in sys.argv[1:]:
+        print("adding " + str(optPath.rstrip()) + " to import path for odrive_server.py")
+        sys.path.insert(0,optPath.rstrip())
+
+    print(sys.path)
 
     import odrive
     import fibre
