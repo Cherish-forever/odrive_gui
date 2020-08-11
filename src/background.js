@@ -23,8 +23,15 @@ function createWindow() {
   const args = process.argv;
   let effectiveCommand = [];
   effectiveCommand.push(scriptFilename);
-  for (const arg of args.slice(1)) {
-    effectiveCommand.push(arg);
+  if (app.isPackaged === true) {
+    for (const arg of args.slice(1)) {
+      effectiveCommand.push(arg);
+    }
+  }
+  else {
+    for (const arg of args.slice(2)) {
+      effectiveCommand.push(arg);
+    }
   }
   var python = spawn('python', effectiveCommand);
   python.stdout.on('data',function(data) {
