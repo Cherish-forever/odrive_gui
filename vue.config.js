@@ -16,7 +16,7 @@ module.exports = {
                     ]
                 }
             },
-            mainProcessArgs: ['C:/Users/pajoh/Desktop/ODrive_work/ODrive/tools', 'C:/Users/pajoh/Desktop/ODrive_work/ODrive/Firmware']
+            //mainProcessArgs: ['C:/Users/pajoh/Desktop/ODrive_work/ODrive/tools', 'C:/Users/pajoh/Desktop/ODrive_work/ODrive/Firmware']
         }
     }
 }

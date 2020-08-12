@@ -188,8 +188,6 @@ if __name__ == "__main__":
         print("adding " + str(optPath.rstrip()) + " to import path for odrive_server.py")
         sys.path.insert(0,optPath.rstrip())
 
-    print(sys.path)
-
     import odrive
     import fibre
 

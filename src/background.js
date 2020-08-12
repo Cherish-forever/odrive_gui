@@ -5,7 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-const { spawnSync } = require('child_process');
+const { spawnSync, execSync } = require('child_process');
 const spawn = require('child_process').spawn;
 const path = require('path');
 
@@ -90,6 +90,11 @@ function createWindow() {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
+  // kill flask server
+  if (process.platform !== 'win32') {
+    execSync('kill $(ps aux | grep \'[o]drive_server.py\' | awk \'{print $2}\')');
+    console.log("killed flask server");
+  }
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
