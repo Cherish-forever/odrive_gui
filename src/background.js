@@ -5,6 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+const { spawnSync } = require('child_process');
 const spawn = require('child_process').spawn;
 const path = require('path');
 
@@ -16,6 +17,25 @@ let win
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
+
+// function to get determine correct command for python
+function getPyCmd() {
+  let spawnRet = spawnSync('python',['-V']);
+  let vString;
+  if (spawnRet.stdout.toString().length > 1){
+      vString = spawnRet.stdout.toString();
+  }
+  else {
+      vString = spawnRet.stderr.toString();
+  }
+
+  if (vString.split(' ')[1].split('.')[0] == '2') {
+      return 'python3';
+  }
+  else {
+      return 'python';
+  }
+}
 
 function createWindow() {
   // Spawn the python server
@@ -33,7 +53,7 @@ function createWindow() {
       effectiveCommand.push(arg);
     }
   }
-  var python = spawn('python', effectiveCommand);
+  var python = spawn(getPyCmd(), effectiveCommand);
   python.stdout.on('data',function(data) {
     console.log(data.toString('utf8'));
   });
