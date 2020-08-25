@@ -14,7 +14,9 @@
         <input
           type="file"
           id="inputDash"
-          @change="importDashFile($event.target.files)"
+          ref="fileInput"
+          @change="importDashFile($event.target.files);$refs.fileInput.value=null"
+          value
           style="display:none"
         />
       </button>
@@ -83,6 +85,7 @@ import { JSONView } from "vue-json-component";
 import { v4 as uuidv4 } from "uuid";
 import * as socketio from "./comms/socketio";
 import { saveAs } from "file-saver";
+import ConfigDash from "./assets/dashboards/Config.json";
 
 //let propSamplePeriod = 100; //sampling period for properties in ms
 
@@ -174,7 +177,7 @@ export default {
       });
     },
     deleteDash(dashID) {
-      this.currentDash = "Start"
+      this.currentDash = "Start";
       console.log("Deleting dash " + dashID);
       for (const dash of this.dashboards) {
         if (dashID === dash.id) {
@@ -190,9 +193,9 @@ export default {
       saveAs(blob, this.dash.name);
     },
     importDashWrapper() {
-      console.log("importing dashboard");
       const inputElem = document.getElementById("inputDash");
       if (inputElem) {
+        console.log("importing dashboard");
         inputElem.click();
       }
     },
@@ -257,7 +260,7 @@ export default {
             if (obj.id == action.id) {
               action.val = obj.val;
               console.log("Setting action val to " + obj.val);
-            } 
+            }
           }
         }
       }
@@ -459,6 +462,16 @@ export default {
     this.$store.dispatch("setServerAddress", "http://127.0.0.1:5000");
     // connect to socketio on server for sampled data
     this.updateOdrives();
+    this.dashboards.push(ConfigDash);
+    // plots will have variables associated, add them to sampled variables list
+    for (const plot of ConfigDash.plots) {
+      console.log(plot);
+      for (const path of plot.vars) {
+        console.log(path);
+        //addsampledprop(path);
+        this.$store.commit("addSampledProperty", path);
+      }
+    }
   },
 };
 </script>
