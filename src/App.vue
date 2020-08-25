@@ -22,9 +22,16 @@
         v-for="dash in dashboards"
         v-bind:key="dash.id"
         v-bind:class="['dash-button', { active: currentDash === dash.name}]"
-        v-on:click="currentDash = dash.name"
+        v-on:click.self="currentDash = dash.name"
         v-on:dblclick="changeDashName(dash.id)"
-      >{{ dash.name }}</button>
+      >
+        <button
+          v-if="dash.name !== 'Start' && dash.name !== 'Config'"
+          class="close-button"
+          v-on:click="deleteDash(dash.id)"
+        >X</button>
+        {{ dash.name }}
+      </button>
       <button class="dash-button dash-add" @click="addDash">+</button>
       <button class="emergency-stop" @click="estop">STOP</button>
     </div>
@@ -164,6 +171,15 @@ export default {
         actions: [],
         plots: [],
       });
+    },
+    deleteDash(dashID) {
+      this.currentDash = "Start"
+      console.log("Deleting dash " + dashID);
+      for (const dash of this.dashboards) {
+        if (dashID === dash.id) {
+          this.dashboards.splice(this.dashboards.indexOf(dash), 1);
+        }
+      }
     },
     exportDash() {
       console.log("exporting dashboard");
