@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 const axios = require('axios');
 import * as socketio from "./comms/socketio";
+import { v4 as uuidv4 } from "uuid";
 
 Vue.use(Vuex);
 
@@ -18,7 +19,7 @@ export default new Vuex.Store({
                 name: "Start",
                 component: "Start",
             },
-            { name: "Config", component: "Dashboard", controls: [], actions: [], plots: [] }
+            { name: "Config", id: uuidv4(), component: "Dashboard", controls: [], actions: [], plots: [] }
         ],
         timeSampleStart: 0,
         sampledProperties: [], // make this an object where the full path is a key and the value is the sampled var

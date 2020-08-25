@@ -3,7 +3,7 @@
     <button class="close-button" @click="$emit('delete-action', id)">X</button>
     <span class="ctrlName">{{path}}:</span>
     <div class="right">
-      <input type="number" v-on:change="newVal" />
+      <input type="number" v-on:change="newVal" :placeholder="initVal"/>
       <button class="action-button close-button" @click="putVal">Go</button>
     </div>
   </div>
@@ -17,15 +17,25 @@ export default {
   props: {
     id: String,
     path: String,
+    initVal: Number,
   },
   data: function () {
     return {
       value: 0,
     };
   },
+  mounted() {
+    if (this.initVal !== undefined) {
+      this.value = this.initVal;
+    }
+  },
   methods: {
     newVal: function (e) {
       this.value = parseFloat(e.target.value);
+      // emit a signal - signal needs to float all the way up to Dash
+      // set value of dash.actions.id.val to this.value
+      // this way, action values will be kept when dashes are imported or exported
+      this.$emit('set-action-val', {id: this.id, val: this.value});
     },
     putVal: function () {
       var params = new URLSearchParams();

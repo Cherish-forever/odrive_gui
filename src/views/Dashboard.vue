@@ -22,7 +22,9 @@
             :key="index + '-action'"
             :path="action.path"
             :odrives="odrives"
+            :initVal="action.val"
             v-on:delete-action="deleteAction"
+            v-on:set-action-val="setActionVal"
           />
         </template>
         <div class="add-button card" @click="$emit('add-action')">Add Action</div>
@@ -83,6 +85,13 @@ export default {
     addVar(e) {
       this.$emit("add-var", e);
     },
+    setActionVal(obj) {
+      // obj is {id: , val: }
+      let newObj = obj;
+      newObj["dashID"] = this.dash.id;
+      this.$emit("set-action-val", newObj);
+      console.log("From Dash, setting action val " + newObj);
+    }
   },
 };
 </script>
