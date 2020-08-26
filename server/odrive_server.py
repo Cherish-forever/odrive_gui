@@ -29,7 +29,7 @@ configDict = {}
 
 def get_all_odrives():
     odrives = []
-    odrives.append(odrive.find_any(timeout=15)) #, find_multiple=100)
+    odrives.append(odrive.find_any()) #, find_multiple=100)
     #odrives.append(odrive.find_any())
     return odrives
 
