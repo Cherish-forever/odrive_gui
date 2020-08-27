@@ -1,6 +1,6 @@
 <template>
   <div class="card" @click.self="executeFunction">
-    <button class="close-button" @click="$emit('delete-ctrl', path)">X</button>
+    <button class="close-button" @click=deleteCtrl>X</button>
     <button class="execute">{{name}}()</button>
   </div>
 </template>
@@ -13,7 +13,8 @@ export default {
   //type checking here for properties
   props: {
     path: String,
-    odrives: Object
+    odrives: Object,
+    dashID: String,
   },
   computed: {
     name: function() {
@@ -60,6 +61,10 @@ export default {
         null,
         request
       );
+    },
+    deleteCtrl: function() {
+      // commit a mutation in the store with the relevant information
+      this.$store.commit("removeCtrlFromDash", {dashID: this.dashID, path: this.path});
     }
   }
 };

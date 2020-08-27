@@ -60,11 +60,8 @@
       v-bind:dash="dash"
       v-on:add-control="addControlToDash"
       v-on:add-slider="addSliderToDash"
-      v-on:delete-ctrl="removeCtrlFromDash"
       v-on:add-plot="addPlotToDash"
-      v-on:delete-plot="removePlotFromDash"
       v-on:add-action="addActionToDash"
-      v-on:delete-action="removeActionFromDash"
       v-on:add-var="addVarToPlot"
       v-on:delete-var="removeVarFromPlot"
       v-on:set-action-val="setActionVal"
@@ -380,33 +377,6 @@ export default {
         }
       }
     },
-    removeCtrlFromDash(path) {
-      // have full path from component
-      for (const dash of this.dashboards) {
-        if (this.currentDash === dash.name && this.currentDash !== "Start") {
-          for (const control of dash.controls) {
-            if (control.path == path) {
-              dash.controls.splice(dash.controls.indexOf(control), 1);
-              break;
-            }
-          }
-          break;
-        }
-      }
-    },
-    removeActionFromDash(id) {
-      for (const dash of this.dashboards) {
-        if (this.currentDash === dash.name && this.currentDash !== "Start") {
-          for (const action of dash.actions) {
-            if (action.id == id) {
-              dash.actions.splice(dash.actions.indexOf(action), 1);
-              break;
-            }
-          }
-          break;
-        }
-      }
-    },
     addPlotToDash() {
       for (const dash of this.dashboards) {
         if (this.currentDash === dash.name && this.currentDash !== "Start") {
@@ -415,19 +385,6 @@ export default {
             name: plotId,
             vars: [],
           });
-          break;
-        }
-      }
-    },
-    removePlotFromDash(name) {
-      for (const dash of this.dashboards) {
-        if (this.currentDash === dash.name && this.currentDash !== "Start") {
-          for (const plot of dash.plots) {
-            if (plot.name == name) {
-              dash.plots.splice(dash.plots.indexOf(plot), 1);
-              break;
-            }
-          }
           break;
         }
       }

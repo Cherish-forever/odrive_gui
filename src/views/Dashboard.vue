@@ -9,7 +9,7 @@
             :path="control.path"
             :name="control.name"
             :odrives="odrives"
-            v-on:delete-ctrl="deleteCtrl"
+            :dashID="dash.id"
           />
         </template>
         <div class="control-buttons">
@@ -23,7 +23,7 @@
             :path="action.path"
             :odrives="odrives"
             :initVal="action.val"
-            v-on:delete-action="deleteAction"
+            :dashID="dash.id"
             v-on:set-action-val="setActionVal"
           />
         </template>
@@ -35,7 +35,7 @@
             :plot="plot"
             :key="index"
             :name="plot.name"
-            v-on:delete-plot="deletePlot"
+            :dashID="dash.id"
             v-on:add-var="addVar"
           />
         </template>
@@ -72,9 +72,6 @@ export default {
     return {};
   },
   methods: {
-    deleteCtrl(e) {
-      this.$emit("delete-ctrl", e);
-    },
     deleteAction(e) {
       this.$emit("delete-action", e);
       console.log(e);

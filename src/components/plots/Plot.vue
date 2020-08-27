@@ -1,7 +1,7 @@
 <template>
   <div class="card plot">
     <div class="plot-header">
-      <button class="close-button" @click="$emit('delete-plot', name)">X</button>
+      <button class="close-button" @click=deletePlot>X</button>
       <button class="close-button" @click="$emit('add-var', name)">+</button>
     </div>
     <line-chart v-if="loaded" :chart-data="datacollection" :options="dataOptions"></line-chart>
@@ -15,7 +15,7 @@ export default {
   components: {
     LineChart
   },
-  props: ["name", "plot"],
+  props: ["name", "plot", "dashID"],
   data() {
     return {
       datacollection: null,
@@ -90,6 +90,10 @@ export default {
       //  this.fillData();
       //}
       this.fillData();
+    },
+    deletePlot: function() {
+      // commit a mutation in the store with the relevant information
+      this.$store.commit("removePlotFromDash", {dashID: this.dashID, plotID: this.name});
     }
   }
 };

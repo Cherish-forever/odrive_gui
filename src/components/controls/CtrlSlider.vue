@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <div>
-      <button class="close-button" @click="$emit('delete-ctrl', path)">X</button>
+      <button class="close-button" @click=deleteCtrl>X</button>
       <span class="ctrlName">{{name}}</span>
     </div>
     <div class="slider-container">
@@ -27,6 +27,7 @@ export default {
   props: {
     path: String,
     odrives: Object,
+    dashID: String,
   },
   data: function () {
     return {
@@ -89,6 +90,10 @@ export default {
     setMax: function (e) {
       this.max = parseFloat(e.target.value);
       this.data = Array.from(Array(101), (_, i) => this.min + (this.max-this.min) / 100 * i);
+    },
+    deleteCtrl: function() {
+      // commit a mutation in the store with the relevant information
+      this.$store.commit("removeCtrlFromDash", {dashID: this.dashID, path: this.path});
     }
   },
   mounted() {

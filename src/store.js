@@ -99,6 +99,48 @@ export default new Vuex.Store({
         setServerStatus(state, val) {
             state.serverConnected = val;
         },
+        removeCtrlFromDash(state, obj) {
+            // obj is {dash: dashID, path: control path}
+            for (const dash of state.dashboards) {
+                if (obj.dashID == dash.id) {
+                    for (const control of dash.controls) {
+                        if (obj.path == control.path) {
+                            dash.controls.splice(dash.controls.indexOf(control), 1);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        },
+        removeActionFromDash(state, obj) {
+            // obj is {dashID: dashID, actionID: action ID}
+            for (const dash of state.dashboards) {
+                if (obj.dashID == dash.id) {
+                    for (const action of dash.actions) {
+                        if (obj.actionID == action.id) {
+                            dash.actions.splice(dash.actions.indexOf(action), 1);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        },
+        removePlotFromDash(state, obj) {
+            // obj is {dashID: dash ID, plotID: plot ID}
+            for (const dash of state.dashboards) {
+                if (obj.dashID == dash.id) {
+                    for (const plot of dash.plots) {
+                        if (obj.plotID == plot.name) {
+                            dash.plots.splice(dash.plots.indexOf(plot), 1);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        },
     },
     // actions trigger mutations
     actions: {

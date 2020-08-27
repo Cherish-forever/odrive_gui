@@ -1,6 +1,6 @@
 <template>
   <div class="card action-card">
-    <button class="close-button" @click="$emit('delete-action', id)">X</button>
+    <button class="close-button" @click=deleteAction>X</button>
     <span class="ctrlName">{{path}}:</span>
     <div class="right">
       <input type="number" v-on:change="newVal" :placeholder="initVal"/>
@@ -18,6 +18,7 @@ export default {
     id: String,
     path: String,
     initVal: Number,
+    dashID: String
   },
   data: function () {
     return {
@@ -57,6 +58,10 @@ export default {
         request
       );
     },
+    deleteAction: function() {
+      // commit a mutation to remove this action from the dashboard
+      this.$store.commit("removeActionFromDash", {dashID: this.dashID, actionID: this.id});
+    }
   },
 };
 </script>
