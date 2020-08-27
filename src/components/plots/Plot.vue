@@ -34,9 +34,9 @@ export default {
             radius: 0
           },
           line: {
-            borderColor: "#000",
+          //  borderColor: "rbga(0,0,0,0)",
             fill: false,
-            borderWidth: 1,
+            borderWidth: 0,
             tension: 0
           }
         },
@@ -57,13 +57,13 @@ export default {
         labels: this.$store.state.propSamples["time"],
         datasets: []
       };
-      for (const path of this.plot.vars) {
-        let newPath = path.split('.');
+      for (const plotVar of this.plot.vars) {
+        let newPath = plotVar.path.split('.');
         newPath.splice(0,1);
         newPath = newPath.join('.');
         newData.datasets.push({
           label: newPath,
-          backgroundColor: "rgba(0,0,0,0)",
+          borderColor: plotVar.color,//"rgba(0,0,0,0)",
           data: this.$store.state.propSamples[newPath]
         });
       }

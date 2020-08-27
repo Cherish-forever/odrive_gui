@@ -89,6 +89,14 @@ import ConfigDash from "./assets/dashboards/Config.json";
 
 //let propSamplePeriod = 100; //sampling period for properties in ms
 
+let plotColors = [
+  "#195bd7",  // blue
+  "#d6941a",  // orange
+  "#1ad636",  // green
+  "#d61aba",  // purple
+  "#d5241a",  // red
+]
+
 export default {
   name: "App",
   components: {
@@ -211,10 +219,10 @@ export default {
         // plots will have variables associated, add them to sampled variables list
         for (const plot of dash.plots) {
           console.log(plot);
-          for (const path of plot.vars) {
-            console.log(path);
+          for (const plotVar of plot.vars) {
+            console.log(plotVar);
             //addsampledprop(path);
-            this.$store.commit("addSampledProperty", path);
+            this.$store.commit("addSampledProperty", plotVar.path);
           }
         }
       };
@@ -318,7 +326,10 @@ export default {
           if (this.currentDash === dash.name && this.currentDash !== "Start") {
             for (const plot of dash.plots) {
               if (plot.name == this.currentPlot) {
-                plot.vars.push(e.path);
+                plot.vars.push({
+                  path: e.path,
+                  color: plotColors[plot.vars.length % plotColors.length],
+                });
                 this.$store.commit("addSampledProperty", e.path);
                 console.log(plot);
                 break;
@@ -466,10 +477,10 @@ export default {
     // plots will have variables associated, add them to sampled variables list
     for (const plot of ConfigDash.plots) {
       console.log(plot);
-      for (const path of plot.vars) {
-        console.log(path);
+      for (const plotVar of plot.vars) {
+        console.log(plotVar);
         //addsampledprop(path);
-        this.$store.commit("addSampledProperty", path);
+        this.$store.commit("addSampledProperty", plotVar.path);
       }
     }
   },

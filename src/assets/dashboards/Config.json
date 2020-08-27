@@ -64,17 +64,29 @@
   ],
   "plots": [
     {
-      "name": "3edbdbd9-374b-4d58-ae2f-8377d6558e95",
+      "name": "65a2768d-e61e-4dd5-bf80-dba153838f74",
       "vars": [
-        "odrives.odrive0.axis0.controller.pos_setpoint",
-        "odrives.odrive0.axis0.encoder.pos_estimate"
+        {
+          "path": "odrives.odrive0.axis0.controller.pos_setpoint",
+          "color": "#195bd7"
+        },
+        {
+          "path": "odrives.odrive0.axis0.encoder.pos_estimate",
+          "color":  "#d6941a"
+        }
       ]
     },
     {
-      "name": "72feb98d-c692-47a1-a795-9655e3d88201",
+      "name": "d9ee2474-3e53-408f-9eab-1656342eb531",
       "vars": [
-        "odrives.odrive0.axis0.controller.vel_setpoint",
-        "odrives.odrive0.axis0.encoder.vel_estimate"
+        {
+          "path": "odrives.odrive0.axis0.controller.vel_setpoint",
+          "color": "#195bd7"
+        },
+        {
+          "path": "odrives.odrive0.axis0.encoder.vel_estimate",
+          "color":  "#d6941a"
+        }
       ]
     }
   ]
