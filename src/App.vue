@@ -38,32 +38,11 @@
       <button class="emergency-stop" @click="estop">STOP</button>
     </div>
 
-    <!-- PARAMETER DROPDOWN MENU -->
-    <div v-show="paramsVisible" class="dropdown">
-      <div class="card dropdown-content">
-        <div>
-          <button class="close-button" @click="hideTree">X</button>
-          Parameters
-        </div>
-        <json-view
-          v-bind:data="odriveConfigs"
-          v-bind:rootKey="'odrives'"
-          v-on:selected="addVarToElement"
-        />
-      </div>
-    </div>
-
     <!-- PAGE CONTENT -->
     <component
       v-bind:is="currentDashName"
       v-bind:odrives="odrives"
       v-bind:dash="dash"
-      v-on:add-control="addControlToDash"
-      v-on:add-slider="addSliderToDash"
-      v-on:add-plot="addPlotToDash"
-      v-on:add-action="addActionToDash"
-      v-on:add-var="addVarToPlot"
-      v-on:delete-var="removeVarFromPlot"
     ></component>
 
     <!-- FOOTER -->
@@ -77,21 +56,12 @@
 import Start from "./views/Start.vue";
 import Dashboard from "./views/Dashboard.vue";
 import Axis from "./components/Axis.vue";
-import { JSONView } from "vue-json-component";
-import { v4 as uuidv4 } from "uuid";
 import * as socketio from "./comms/socketio";
 import { saveAs } from "file-saver";
 import ConfigDash from "./assets/dashboards/Config.json";
+import { v4 as uuidv4 } from "uuid";
 
 //let propSamplePeriod = 100; //sampling period for properties in ms
-
-let plotColors = [
-  "#195bd7",  // blue
-  "#d6941a",  // orange
-  "#1ad636",  // green
-  "#d61aba",  // purple
-  "#d5241a",  // red
-]
 
 export default {
   name: "App",
@@ -99,17 +69,10 @@ export default {
     Start,
     Dashboard,
     Axis,
-    "json-view": JSONView,
   },
   data: function () {
     return {
       currentDash: "Start",
-      paramsVisible: false,
-      addCtrl: false,
-      addAction: false,
-      addSlider: false,
-      addToPlot: false,
-      currentPlot: undefined,
     };
   },
   computed: {
@@ -146,9 +109,6 @@ export default {
     },
     odrives: function () {
       return this.$store.state.odrives;
-    },
-    odriveConfigs: function () {
-      return this.$store.state.odriveConfigs;
     },
     dashboards: function () {
       return this.$store.state.dashboards;
@@ -230,159 +190,6 @@ export default {
     changeDashName(e) {
       console.log(e);
       console.log("double clicked dashboard name");
-    },
-    showTree() {
-      //show the parameter tree
-      this.paramsVisible = true;
-    },
-    hideTree() {
-      this.paramsVisible = false;
-      this.addCtrl = false;
-      this.addToPlot = false;
-      this.addAction = false;
-      this.addSlider = false;
-    },
-    addControlToDash() {
-      this.addCtrl = true;
-      //show parameter menu
-      this.showTree();
-    },
-    addActionToDash() {
-      this.addAction = true;
-      this.showTree();
-    },
-    addSliderToDash() {
-      this.addSlider = true;
-      this.showTree();
-    },
-    addVarToElement(e) {
-      //when the parameter tree is open and a parameter is clicked,
-      //add the clicked parameter to the list of controls for the
-      //current dashboard
-      if (
-        this.addCtrl == true &&
-        this.addToPlot == false &&
-        this.addAction == false &&
-        this.addSlider == false
-      ) {
-        for (const dash of this.dashboards) {
-          if (this.currentDash === dash.name && this.currentDash !== "Start") {
-            switch (typeof e.value) {
-              case "boolean":
-                dash.controls.push({
-                  controlType: "CtrlBoolean",
-                  path: e.path,
-                });
-                //this.$store.commit("addSampledProperty", e.path);
-                break;
-              case "number":
-                dash.controls.push({
-                  controlType: "CtrlNumeric",
-                  path: e.path,
-                });
-                //this.$store.commit("addSampledProperty", e.path);
-                break;
-              case "string":
-                dash.controls.push({
-                  controlType: "CtrlFunction",
-                  path: e.path,
-                });
-                break;
-              default:
-                break;
-            }
-            break;
-          }
-        }
-      } else if (
-        this.addCtrl == false &&
-        this.addToPlot == true &&
-        this.addAction == false &&
-        this.addSlider == false
-      ) {
-        // add the selected element to the plot var list
-        // add the selected element to the sampling var list
-        // find the plot, append path to plot.vars
-        console.log(e);
-        for (const dash of this.dashboards) {
-          if (this.currentDash === dash.name && this.currentDash !== "Start") {
-            for (const plot of dash.plots) {
-              if (plot.name == this.currentPlot) {
-                plot.vars.push({
-                  path: e.path,
-                  color: plotColors[plot.vars.length % plotColors.length],
-                });
-                this.$store.commit("addSampledProperty", e.path);
-                console.log(plot);
-                break;
-              }
-            }
-            break;
-          }
-        }
-      } else if (
-        this.addCtrl == false &&
-        this.addToPlot == false &&
-        this.addAction == true &&
-        this.addSlider == false
-      ) {
-        // add an action to the current dash
-        for (const dash of this.dashboards) {
-          if (this.currentDash === dash.name && this.currentDash !== "Start") {
-            let id = uuidv4();
-            dash.actions.push({
-              id: id,
-              path: e.path,
-              val: undefined,
-            });
-            break;
-          }
-        }
-      } else if (
-        this.addCtrl == false &&
-        this.addToPlot == false &&
-        this.addAction == false &&
-        this.addSlider == true
-      ) {
-        // add a slider to the list of controls if the selected item is valid (numeric)
-        for (const dash of this.dashboards) {
-          if (this.currentDash === dash.name && this.currentDash !== "Start") {
-            switch (typeof e.value) {
-              case "number":
-                dash.controls.push({
-                  controlType: "CtrlSlider",
-                  path: e.path,
-                });
-                break;
-              default:
-                break;
-            }
-            break;
-          }
-        }
-      }
-    },
-    addPlotToDash() {
-      for (const dash of this.dashboards) {
-        if (this.currentDash === dash.name && this.currentDash !== "Start") {
-          let plotId = uuidv4();
-          dash.plots.push({
-            name: plotId,
-            vars: [],
-          });
-          break;
-        }
-      }
-    },
-    addVarToPlot(plotname) {
-      console.log(plotname);
-      this.addToPlot = true;
-      this.showTree();
-      this.currentPlot = plotname;
-    },
-    removeVarFromPlot(e) {
-      //e should be plotname and var name (or path)
-      console.log(e);
     },
     startsample() {
       socketio.sendEvent({
@@ -511,20 +318,6 @@ button {
 
 .dash-add {
   font-weight: bold;
-}
-
-.dropdown {
-  position: absolute;
-  padding: var(--top-height) 0;
-  display: inline-block;
-}
-
-.dropdown-content {
-  position: absolute;
-  z-index: 1;
-  padding: var(--top-height) 0;
-  max-height: 90vh;
-  overflow-y: scroll;
 }
 
 .parameter-button {
