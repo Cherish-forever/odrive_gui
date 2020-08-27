@@ -141,6 +141,21 @@ export default new Vuex.Store({
                 }
             }
         },
+        setActionVal(state, obj) {
+            // obj is {dashID: dash ID, actionID: action ID, val: val}
+            for (const dash of state.dashboards) {
+                if (obj.dashID == dash.id) {
+                    for (const action of dash.actions) {
+                        if (obj.actionID == action.id) {
+                            action.val = obj.val;
+                            console.log("Setting action val to " + obj.val);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        },
     },
     // actions trigger mutations
     actions: {

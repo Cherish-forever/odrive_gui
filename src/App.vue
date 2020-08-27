@@ -64,7 +64,6 @@
       v-on:add-action="addActionToDash"
       v-on:add-var="addVarToPlot"
       v-on:delete-var="removeVarFromPlot"
-      v-on:set-action-val="setActionVal"
     ></component>
 
     <!-- FOOTER -->
@@ -255,20 +254,6 @@ export default {
     addSliderToDash() {
       this.addSlider = true;
       this.showTree();
-    },
-    setActionVal(obj) {
-      // set value to val
-      // obj is {id: , val: , dashID: }
-      for (const dash of this.dashboards) {
-        if (obj.dashID == dash.id) {
-          for (const action of dash.actions) {
-            if (obj.id == action.id) {
-              action.val = obj.val;
-              console.log("Setting action val to " + obj.val);
-            }
-          }
-        }
-      }
     },
     addVarToElement(e) {
       //when the parameter tree is open and a parameter is clicked,

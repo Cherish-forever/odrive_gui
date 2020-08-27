@@ -36,7 +36,8 @@ export default {
       // emit a signal - signal needs to float all the way up to Dash
       // set value of dash.actions.id.val to this.value
       // this way, action values will be kept when dashes are imported or exported
-      this.$emit('set-action-val', {id: this.id, val: this.value});
+      //this.$emit('set-action-val', {id: this.id, val: this.value});
+      this.$store.commit("setActionVal", {dashID: this.dashID, actionID: this.id, val: this.value});
     },
     putVal: function () {
       var params = new URLSearchParams();
