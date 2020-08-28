@@ -2,6 +2,7 @@
   <div class="card plot">
     <div class="plot-header">
       <button class="close-button" @click=deletePlot>X</button>
+      <button class="close-button" @click=exportCSV>Export</button>
       <button class="close-button" @click="$emit('add-var', name)">+</button>
     </div>
     <line-chart v-if="loaded" :chart-data="datacollection" :options="dataOptions"></line-chart>
@@ -10,6 +11,7 @@
 
 <script>
 import LineChart from "./LineChart.js";
+import { saveAs } from "file-saver";
 
 export default {
   components: {
@@ -94,6 +96,47 @@ export default {
     deletePlot: function() {
       // commit a mutation in the store with the relevant information
       this.$store.commit("removePlotFromDash", {dashID: this.dashID, plotID: this.name});
+    },
+    exportCSV: function() {
+      //console.log("exporting dashboard");
+      //const blob = new Blob([JSON.stringify(this.dash, null, 2)], {
+      //  type: "application/json",
+      //});
+      //saveAs(blob, this.dash.name);
+
+      // make a sensible data structure
+      let csvData = {};
+      csvData["time"] = this.$store.state.propSamples["time"];
+      for(const dataset of this.datacollection.datasets){
+        csvData[dataset.label] = dataset.data;
+      }
+      let csvString = "";
+      let dataKeys = Object.keys(csvData);
+      // turn data structure into a string that's suitable for exporting
+      for (const label of dataKeys){
+        csvString += label;
+        if(label != dataKeys.slice(-1)){
+          csvString += ',';
+        }
+        else {
+          csvString += '\n';
+        }
+      }
+      for (let idx = 0; idx < csvData["time"].length; idx = idx+1){
+        for (const label of dataKeys){
+          csvString += csvData[label][idx];
+          if(label != dataKeys.slice(-1)){
+            csvString += ',';
+          }
+          else{
+            csvString += '\n';
+          }
+        }
+      }
+      var blob = new Blob([csvString], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, "plot.csv");
+
+      console.log("exporting plot");
     }
   }
 };
