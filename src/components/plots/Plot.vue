@@ -1,8 +1,8 @@
 <template>
   <div class="card plot">
     <div class="plot-header">
-      <button class="close-button" @click=deletePlot>X</button>
-      <button class="close-button" @click=exportCSV>Export</button>
+      <button class="close-button" @click="deletePlot">X</button>
+      <button class="close-button" @click="exportCSV">Export</button>
       <button class="close-button" @click="$emit('add-var', name)">+</button>
     </div>
     <line-chart v-if="loaded" :chart-data="datacollection" :options="dataOptions"></line-chart>
@@ -15,7 +15,7 @@ import { saveAs } from "file-saver";
 
 export default {
   components: {
-    LineChart
+    LineChart,
   },
   props: ["name", "plot", "dashID"],
   data() {
@@ -25,26 +25,26 @@ export default {
       loaded: false,
       dataOptions: {
         animation: {
-          duration: 0 // general animation time
+          duration: 0, // general animation time
         },
         hover: {
-          animationDuration: 0 // duration of animations when hovering an item
+          animationDuration: 0, // duration of animations when hovering an item
         },
         responsiveAnimationDuration: 0, // animation duration after a resize
         elements: {
           point: {
-            radius: 0
+            radius: 0,
           },
           line: {
-          //  borderColor: "rbga(0,0,0,0)",
+            //  borderColor: "rbga(0,0,0,0)",
             fill: false,
             borderWidth: 0,
-            tension: 0
-          }
+            tension: 0,
+          },
         },
         responsive: true,
         maintainAspectRatio: false,
-      }
+      },
     };
   },
   mounted() {
@@ -57,16 +57,16 @@ export default {
     fillData() {
       let newData = {
         labels: this.$store.state.propSamples["time"],
-        datasets: []
+        datasets: [],
       };
       for (const plotVar of this.plot.vars) {
-        let newPath = plotVar.path.split('.');
-        newPath.splice(0,1);
-        newPath = newPath.join('.');
+        let newPath = plotVar.path.split(".");
+        newPath.splice(0, 1);
+        newPath = newPath.join(".");
         newData.datasets.push({
           label: newPath,
-          borderColor: plotVar.color,//"rgba(0,0,0,0)",
-          data: this.$store.state.propSamples[newPath]
+          borderColor: plotVar.color, //"rgba(0,0,0,0)",
+          data: this.$store.state.propSamples[newPath],
         });
       }
       this.datacollection = newData;
@@ -79,9 +79,9 @@ export default {
           {
             label: "Sine wave",
             backgroundColor: "rgba(0,0,0,0)", //"#f87979",
-            data: [0]
-          }
-        ]
+            data: [0],
+          },
+        ],
       };
     },
     liveData() {
@@ -93,52 +93,47 @@ export default {
       //}
       this.fillData();
     },
-    deletePlot: function() {
+    deletePlot: function () {
       // commit a mutation in the store with the relevant information
-      this.$store.commit("removePlotFromDash", {dashID: this.dashID, plotID: this.name});
+      this.$store.commit("removePlotFromDash", {
+        dashID: this.dashID,
+        plotID: this.name,
+      });
     },
-    exportCSV: function() {
-      //console.log("exporting dashboard");
-      //const blob = new Blob([JSON.stringify(this.dash, null, 2)], {
-      //  type: "application/json",
-      //});
-      //saveAs(blob, this.dash.name);
-
+    exportCSV: function () {
       // make a sensible data structure
       let csvData = {};
       csvData["time"] = this.$store.state.propSamples["time"];
-      for(const dataset of this.datacollection.datasets){
+      for (const dataset of this.datacollection.datasets) {
         csvData[dataset.label] = dataset.data;
       }
       let csvString = "";
       let dataKeys = Object.keys(csvData);
       // turn data structure into a string that's suitable for exporting
-      for (const label of dataKeys){
+      for (const label of dataKeys) {
         csvString += label;
-        if(label != dataKeys.slice(-1)){
-          csvString += ',';
-        }
-        else {
-          csvString += '\n';
+        if (label != dataKeys.slice(-1)) {
+          csvString += ",";
+        } else {
+          csvString += "\n";
         }
       }
-      for (let idx = 0; idx < csvData["time"].length; idx = idx+1){
-        for (const label of dataKeys){
+      for (let idx = 0; idx < csvData["time"].length; idx = idx + 1) {
+        for (const label of dataKeys) {
           csvString += csvData[label][idx];
-          if(label != dataKeys.slice(-1)){
-            csvString += ',';
-          }
-          else{
-            csvString += '\n';
+          if (label != dataKeys.slice(-1)) {
+            csvString += ",";
+          } else {
+            csvString += "\n";
           }
         }
       }
-      var blob = new Blob([csvString], {type: "text/plain;charset=utf-8"});
+      var blob = new Blob([csvString], { type: "text/plain;charset=utf-8" });
       saveAs(blob, "plot.csv");
 
       console.log("exporting plot");
-    }
-  }
+    },
+  },
 };
 </script>
 

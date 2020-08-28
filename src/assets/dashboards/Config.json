@@ -24,10 +24,6 @@
       "path": "odrives.odrive0.axis0.encoder.config.cpr"
     },
     {
-      "controlType": "CtrlFunction",
-      "path": "odrives.odrive0.save_configuration"
-    },
-    {
       "controlType": "CtrlSlider",
       "path": "odrives.odrive0.axis0.controller.config.pos_gain"
     },
@@ -38,6 +34,14 @@
     {
       "controlType": "CtrlSlider",
       "path": "odrives.odrive0.axis0.controller.config.vel_integrator_gain"
+    },
+    {
+      "controlType": "CtrlFunction",
+      "path": "odrives.odrive0.axis0.clear_errors"
+    },
+    {
+      "controlType": "CtrlFunction",
+      "path": "odrives.odrive0.save_configuration"
     }
   ],
   "actions": [
@@ -72,7 +76,7 @@
         },
         {
           "path": "odrives.odrive0.axis0.encoder.pos_estimate",
-          "color":  "#d6941a"
+          "color": "#d6941a"
         }
       ]
     },
@@ -85,7 +89,7 @@
         },
         {
           "path": "odrives.odrive0.axis0.encoder.vel_estimate",
-          "color":  "#d6941a"
+          "color": "#d6941a"
         }
       ]
     }
