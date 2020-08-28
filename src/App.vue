@@ -47,7 +47,7 @@
 
     <!-- FOOTER -->
     <div class="footer">
-      <Axis v-for="axis in axes" v-bind:key="axis.name" v-bind:axis="axis"></Axis>
+      <Axis v-for="axis in axes" v-bind:key="axis.name" v-bind:axis="axis" v-bind:odrives="odrives"></Axis>
     </div>
   </div>
 </template>

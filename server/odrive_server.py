@@ -140,9 +140,6 @@ def postVal(odrives, keyList, value, argType):
     else:
         pass # dont support that type yet
 
-# get a value or object for an http GET request
-
-
 def getVal(odrives, keyList):
     index = int(''.join([char for char in keyList.pop(0) if char.isnumeric()]))
     RO = odrives[index]
@@ -175,9 +172,7 @@ def callFunc(odrives, keyList):
     for key in keyList:
         RO = RO._remote_attributes[key]
     if isinstance(RO, fibre.remote_object.RemoteFunction):
-        # is this how to call the function?
         RO.__call__()
-
 
 if __name__ == "__main__":
     print("args from python:")
@@ -189,6 +184,7 @@ if __name__ == "__main__":
         sys.path.insert(0,optPath.rstrip())
 
     import odrive
+    import odrive.utils # for dump_errors()
     import fibre
 
 
