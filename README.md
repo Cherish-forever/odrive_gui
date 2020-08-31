@@ -1,7 +1,7 @@
 # odrive_gui
 This is the repo for the ODrive GUI
 
-Flask (python 3) backend with Vue.js frontend, packaged with Electron.
+Flask (python 3) backend with Vue.js frontend, packaged with Electron. Windows and Linux binaries can be found under the [Releases](https://github.com/PAJohnson/odrive_gui/releases) page.
 
 Python requirements: `pip install flask flask-socketio flask-cors odrive`
 
@@ -14,7 +14,9 @@ example on windows 10:
 
 The first argument is for your local version of odrivetool, the second is for fibre.
 
-## Project setup
+## Development and testing instructions
+
+### Project setup
 ```
 npm install
 ```
@@ -24,14 +26,19 @@ npm install
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
 ### Lints and fixes files
 ```
 npm run lint
+```
+
+### Serve electron version of GUI
+```
+npm run electron:serve
+```
+
+### Package electron app into executable
+```
+npm run electron:build
 ```
 
 ### Customize configuration
