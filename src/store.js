@@ -19,6 +19,10 @@ export default new Vuex.Store({
                 name: "Start",
                 component: "Start",
             },
+            {
+                name: "Wizard",
+                component: "Wizard",
+            },
             //{ name: "Config", id: uuidv4(), component: "Dashboard", controls: [], actions: [], plots: [] }
         ],
         timeSampleStart: 0,

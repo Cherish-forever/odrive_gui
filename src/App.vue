@@ -28,7 +28,7 @@
         v-on:dblclick="changeDashName(dash.id)"
       >
         <button
-          v-if="dash.name !== 'Start' && dash.name !== 'Config'"
+          v-if="dash.name !== 'Start' && dash.name !== 'Config' && dash.name !== 'Wizard'"
           class="close-button"
           v-on:click="deleteDash(dash.id)"
         >X</button>
@@ -56,6 +56,7 @@
 import Start from "./views/Start.vue";
 import Dashboard from "./views/Dashboard.vue";
 import Axis from "./components/Axis.vue";
+import Wizard from "./views/Wizard.vue"
 import * as socketio from "./comms/socketio";
 import { saveAs } from "file-saver";
 import ConfigDash from "./assets/dashboards/Config.json";
@@ -69,6 +70,7 @@ export default {
     Start,
     Dashboard,
     Axis,
+    Wizard,
   },
   data: function () {
     return {
