@@ -1,5 +1,5 @@
 <template>
-  <div class="wizardLimits">What are your limits?</div>
+  <div class="wizardLimits card">What are your limits?</div>
 </template>
 
 <script>

@@ -2,15 +2,17 @@
   <div class="wizard">
     <div class="wizard-container">
       <div class="wizard-page">
+      <div>
         <!-- show the appropriate component -->
         <component v-bind:is="currentPage"></component>
       </div>
       <div class="wizard-controls">
         <!-- show breadcrumbs, back, apply, next buttons -->
-        <button class="back-btn" @click="back">BACK</button>
-        <button class="apply-btn" @click="apply">APPLY</button>
-        <button class="next-btn" @click="next">NEXT</button>
+        <button class="wizBtn card" @click="back">BACK</button>
+        <button class="wizBtn card" @click="apply">APPLY</button>
+        <button class="wizBtn card" @click="next">NEXT</button>
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -146,5 +148,13 @@ export default {
   display: flex;
   flex-direction: column;
   height: 95vh;
+}
+
+.wizard-page {
+  margin: auto;
+}
+
+.wizard-controls {
+  margin-top: 0;
 }
 </style>
